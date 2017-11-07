@@ -19,7 +19,7 @@ import javax.validation.constraints.NotNull
 @Entity
 @Table(name = "User", uniqueConstraints =
 arrayOf(UniqueConstraint(columnNames = arrayOf("username", "email"))))
-data class UserEntity @JvmOverloads constructor(
+data class UserEntity(
         @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
         @NotNull val id: Int,
         @NotNull val name: String,

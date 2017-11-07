@@ -10,4 +10,6 @@ import taskly.system.domain.TaskEntity
  */
 
 @Repository
-interface TaskRepository: CrudRepository<TaskEntity, Int>
+interface TaskRepository: CrudRepository<TaskEntity, Int> {
+    fun findTaskById(id: Int): TaskEntity?
+}

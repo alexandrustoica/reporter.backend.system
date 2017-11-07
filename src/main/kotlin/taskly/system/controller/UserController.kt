@@ -1,33 +1,66 @@
 package taskly.system.controller
 
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.web.bind.annotation.CrossOrigin
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.bind.annotation.*
+import taskly.system.domain.ProjectEntity
+import taskly.system.domain.TaskEntity
 import taskly.system.domain.UserEntity
 import taskly.system.repository.UserRepository
-import java.util.*
-import java.util.concurrent.atomic.AtomicInteger
 
 /**
  * @author Alexandru Stoica
  * @version 1.0
  */
+
 @RestController
-@CrossOrigin(origins = arrayOf("*"))
 @RequestMapping("/user")
 class UserController {
-
-    private val counter = AtomicInteger()
 
     @Autowired
     lateinit var userRepository: UserRepository
 
     @GetMapping("/create")
-    fun create(): UserEntity {
-        val user =  UserEntity(1, "Test", "test", "test", "test@test.com", "default", Calendar.getInstance())
-        if (userRepository.findOne(1) == null) userRepository.save(user)
-        return userRepository.findOne(1)
-    }
+    fun create(): UserEntity = userRepository.findUserById(1) ?: UserEntity()
+
+    @ResponseBody
+    @GetMapping("/register")
+    fun register(@RequestBody user: UserEntity): UserEntity? = TODO("")
+
+    @ResponseBody
+    @GetMapping("/login")
+    fun login(@RequestBody user: UserEntity): UserEntity? = TODO("")
+
+    @ResponseBody
+    @GetMapping("/delete")
+    fun delete(@RequestBody user: UserEntity): UserEntity = TODO()
+
+    @ResponseBody
+    @GetMapping("/update")
+    fun update(@RequestBody user: UserEntity,
+               @RequestBody with: UserEntity): UserEntity = TODO()
+
+    @ResponseBody
+    @GetMapping("/delete/{id}")
+    fun delete(@PathVariable("id") id: Int): UserEntity = TODO()
+
+    @ResponseBody
+    @GetMapping("/edit/{id}")
+    fun update(@PathVariable("id") id: Int,
+               @RequestBody with: UserEntity): UserEntity = TODO()
+
+    @ResponseBody
+    @GetMapping("/tasks/{id}")
+    fun getTasksFromUser(@PathVariable("id") id: Int): List<TaskEntity> = TODO()
+
+    @ResponseBody
+    @GetMapping("/projects/{id}")
+    fun getProjectsFromUser(@PathVariable("id") id: Int): List<ProjectEntity> = TODO()
+
+    @ResponseBody
+    @GetMapping("/get/{name}")
+    fun findUsersByUsername(@PathVariable("name") name: String): List<UserEntity> = TODO()
+
+    @ResponseBody
+    @GetMapping("/get/{id}")
+    fun findUserById(@PathVariable("id") id: Int): UserEntity? = TODO()
 }
