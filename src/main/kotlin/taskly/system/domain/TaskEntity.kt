@@ -1,6 +1,5 @@
 package taskly.system.domain
 
-import net.minidev.json.annotate.JsonIgnore
 import org.hibernate.annotations.CreationTimestamp
 import java.sql.Time
 import java.util.*
@@ -30,12 +29,12 @@ class TaskEntity(
         @ManyToMany(cascade = arrayOf(CascadeType.ALL), targetEntity = UserEntity::class)
         @JoinTable(name = "Workflow", joinColumns = arrayOf(JoinColumn(name = "id_task", referencedColumnName = "id")),
                 inverseJoinColumns = arrayOf(JoinColumn(name = "id_user", referencedColumnName = "id")))
-        @JsonIgnore @NotNull val users: Set<UserEntity> = setOf(),
+        @NotNull val users: Set<UserEntity> = setOf(),
 
         @ManyToMany(cascade = arrayOf(CascadeType.ALL), targetEntity = ProjectEntity::class)
         @JoinTable(name = "Collection", joinColumns = arrayOf(JoinColumn(name = "id_task", referencedColumnName = "id")),
                 inverseJoinColumns = arrayOf(JoinColumn(name = "id_project", referencedColumnName = "id")))
-        @JsonIgnore @NotNull val projects: Set<ProjectEntity> = setOf()) {
+        @NotNull val projects: Set<ProjectEntity> = setOf()) {
 
     constructor() : this(0, "", "", Calendar.getInstance(),
             Time(0), Time(0), Calendar.getInstance(), false, 0)

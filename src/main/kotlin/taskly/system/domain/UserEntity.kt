@@ -1,6 +1,5 @@
 package taskly.system.domain
 
-import net.minidev.json.annotate.JsonIgnore
 import org.hibernate.annotations.CreationTimestamp
 import org.hibernate.validator.constraints.Email
 import org.springframework.security.core.GrantedAuthority
@@ -31,7 +30,7 @@ data class UserEntity(
         @NotNull val date: Calendar,
 
         @ManyToMany(mappedBy = "users")
-        @JsonIgnore @NotNull val tasks: Set<TaskEntity> = setOf()) : Serializable, UserDetails {
+        @NotNull val tasks: Set<TaskEntity> = setOf()) : Serializable, UserDetails {
 
     override fun getUsername(): String = username
 
@@ -49,4 +48,5 @@ data class UserEntity(
     override fun isAccountNonLocked(): Boolean = true
 
     constructor() : this(0, "default", "default", "default", "default@email.com", "default", Calendar.getInstance())
+
 }

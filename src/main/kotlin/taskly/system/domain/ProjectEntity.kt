@@ -1,7 +1,6 @@
 package taskly.system.domain
 
 import com.fasterxml.jackson.annotation.JsonInclude
-import net.minidev.json.annotate.JsonIgnore
 import org.jetbrains.annotations.NotNull
 import java.io.Serializable
 import javax.persistence.*
@@ -17,7 +16,6 @@ import javax.persistence.*
 data class ProjectEntity(@Id @GeneratedValue(strategy = GenerationType.IDENTITY)
                          @NotNull val id: Int,
                          @NotNull var name: String,
-                         @JsonIgnore
                          @ManyToMany(mappedBy = "projects")
                          @NotNull val tasks: Set<TaskEntity> = setOf()) : Serializable {
 
