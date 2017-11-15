@@ -13,7 +13,7 @@ import javax.validation.constraints.NotNull
 
 @Entity
 @Table(name = "Task")
-class TaskEntity(
+class Task(
         @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
         @NotNull val id: Int,
         @NotNull val text: String,
@@ -26,15 +26,15 @@ class TaskEntity(
         @NotNull val done: Boolean,
         @NotNull val points: Int,
 
-        @ManyToMany(cascade = arrayOf(CascadeType.ALL), targetEntity = UserEntity::class)
+        @ManyToMany(cascade = arrayOf(CascadeType.ALL), targetEntity = User::class)
         @JoinTable(name = "Workflow", joinColumns = arrayOf(JoinColumn(name = "id_task", referencedColumnName = "id")),
                 inverseJoinColumns = arrayOf(JoinColumn(name = "id_user", referencedColumnName = "id")))
-        @NotNull val users: Set<UserEntity> = setOf(),
+        @NotNull val users: Set<User> = setOf(),
 
-        @ManyToMany(cascade = arrayOf(CascadeType.ALL), targetEntity = ProjectEntity::class)
+        @ManyToMany(cascade = arrayOf(CascadeType.ALL), targetEntity = Project::class)
         @JoinTable(name = "Collection", joinColumns = arrayOf(JoinColumn(name = "id_task", referencedColumnName = "id")),
                 inverseJoinColumns = arrayOf(JoinColumn(name = "id_project", referencedColumnName = "id")))
-        @NotNull val projects: Set<ProjectEntity> = setOf()) {
+        @NotNull val projects: Set<Project> = setOf()) {
 
     constructor() : this(0, "", "", Calendar.getInstance(),
             Time(0), Time(0), Calendar.getInstance(), false, 0)

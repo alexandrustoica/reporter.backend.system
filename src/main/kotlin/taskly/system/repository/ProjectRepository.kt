@@ -6,7 +6,7 @@ import org.springframework.data.repository.CrudRepository
 import org.springframework.data.repository.query.Param
 import org.springframework.stereotype.Repository
 import org.springframework.transaction.annotation.Transactional
-import taskly.system.domain.ProjectEntity
+import taskly.system.domain.Project
 
 /**
  * @author Alexandru Stoica
@@ -14,12 +14,12 @@ import taskly.system.domain.ProjectEntity
  */
 
 @Repository
-interface ProjectRepository: CrudRepository<ProjectEntity, Int> {
-    fun findProjectById(id: Int): ProjectEntity?
-    fun findProjectsByName(name: String): List<ProjectEntity>
+interface ProjectRepository: CrudRepository<Project, Int> {
+    fun findProjectById(id: Int): Project?
+    fun findProjectsByName(name: String): List<Project>
 
     @Transactional
     @Modifying
-    @Query("update ProjectEntity p set p.name = :name where p.id = :id")
+    @Query("update Project p set p.name = :name where p.id = :id")
     fun updateByName(@Param("id") id: Int, @Param("name") name: String)
 }

@@ -7,7 +7,7 @@ import org.mockito.InjectMocks
 import org.mockito.Mock
 import org.mockito.Mockito
 import org.mockito.runners.MockitoJUnitRunner
-import taskly.system.domain.ProjectEntity
+import taskly.system.domain.Project
 import taskly.system.repository.ProjectRepository
 
 /**
@@ -26,10 +26,10 @@ class ProjectControllerTest {
 
     @Test
     fun isInsertingProject() {
-        val project = ProjectEntity("ProjectTest")
+        val project = Project("ProjectTest")
         Mockito.`when`(projectRepository.save(project))
-                .thenReturn(ProjectEntity(1, "ProjectTest"))
+                .thenReturn(Project(1, "ProjectTest"))
         val result = projectController.insert(project)
-        assertEquals(result, ProjectEntity(1, "ProjectTest"))
+        assertEquals(result, Project(1, "ProjectTest"))
     }
 }

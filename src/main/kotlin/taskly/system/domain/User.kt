@@ -18,7 +18,7 @@ import javax.validation.constraints.NotNull
 @Entity
 @Table(name = "User", uniqueConstraints =
 arrayOf(UniqueConstraint(columnNames = arrayOf("username", "email"))))
-data class UserEntity(
+data class User(
         @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
         @NotNull val id: Int,
         @NotNull val name: String,
@@ -30,7 +30,7 @@ data class UserEntity(
         @NotNull val date: Calendar,
 
         @ManyToMany(mappedBy = "users")
-        @NotNull val tasks: Set<TaskEntity> = setOf()) : Serializable, UserDetails {
+        @NotNull val tasks: Set<Task> = setOf()) : Serializable, UserDetails {
 
     override fun getUsername(): String = username
 
