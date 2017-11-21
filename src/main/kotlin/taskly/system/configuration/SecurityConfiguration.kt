@@ -23,7 +23,6 @@ import taskly.system.service.UserService
  */
 
 
-
 @Configuration
 @ComponentScan(basePackages = arrayOf("taskly.system.service",
         "taskly.system.security", "taskly.system.repository"))

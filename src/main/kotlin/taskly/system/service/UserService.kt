@@ -9,15 +9,11 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.stereotype.Service
 import taskly.system.domain.User
+import taskly.system.exception.UserNotFoundException
 import taskly.system.repository.UserRepository
 import taskly.system.security.SecurityConstants
 import java.util.*
 
-
-/**
- * @author Alexandru Stoica
- * @version 1.0
- */
 
 @Service
 class UserService : UserDetailsService {
@@ -37,6 +33,16 @@ class UserService : UserDetailsService {
     fun save(user: User): User? =
             userRepository.save(user.copy(password = BCryptPasswordEncoder().encode(user.password)))
 
+    fun delete(id: Int) =
+            findUserById(id).let { userRepository.delete(it) }
+
+    @Throws(UserNotFoundException::class)
+    fun findUsersByUsername(name: String): List<User> =
+            userRepository.findAllByUsername(name)
+
+    @Throws(UserNotFoundException::class)
+    fun findUserById(id: Int) =
+            userRepository.findUserById(id) ?: throw UserNotFoundException()
 
     fun getJsonWebToken(user: User): String = Jwts.builder()
             .setSubject(user.username)

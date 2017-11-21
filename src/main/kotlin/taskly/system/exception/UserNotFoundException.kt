@@ -5,4 +5,4 @@ package taskly.system.exception
  * @version 1.0
  */
 
-data class DataNotFound(val message: String?, val errorCode: Int)
+class UserNotFoundException : RuntimeException("404 User Not Found")

@@ -10,7 +10,8 @@ import taskly.system.domain.User
  */
 
 @Repository
-interface UserRepository: CrudRepository<User, Int> {
+interface UserRepository : CrudRepository<User, Int> {
     fun findUserById(id: Int): User?
     fun findByUsername(name: String): User?
+    fun findAllByUsername(username: String): List<User>
 }
