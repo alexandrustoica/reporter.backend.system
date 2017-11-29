@@ -1,11 +1,15 @@
 package taskly.system.controller
 
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.http.HttpStatus
+import org.springframework.http.ResponseEntity
+import org.springframework.security.access.annotation.Secured
+import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.web.bind.annotation.*
-import taskly.system.domain.ProjectEntity
-import taskly.system.domain.TaskEntity
-import taskly.system.domain.UserEntity
-import taskly.system.repository.TaskRepository
+import taskly.system.domain.Task
+import taskly.system.domain.User
+import taskly.system.service.TaskService
+import taskly.system.service.UserService
 
 /**
  * @author Alexandru Stoica
@@ -17,43 +21,50 @@ import taskly.system.repository.TaskRepository
 class TaskController {
 
     @Autowired
-    lateinit var taskRepository: TaskRepository
+    private lateinit var taskService: TaskService
+
+    @Autowired
+    private lateinit var userService: UserService
 
     @ResponseBody
-    @RequestMapping("/insert")
-    fun insert(@RequestBody task: TaskEntity): TaskEntity = TODO()
+    @Secured("ROLE_USER")
+    @PostMapping("/insert")
+    fun insert(@AuthenticationPrincipal user: User,
+               @RequestBody task: Task): Set<Task> =
+            user.addTask(task).let { userService.save(user)?.tasks } ?: setOf()
 
     @ResponseBody
-    @RequestMapping("/delete")
-    fun delete(@RequestBody task: TaskEntity): TaskEntity = TODO()
+    @Secured("ROLE_USER")
+    @PostMapping("/update")
+    fun update(@AuthenticationPrincipal user: User,
+               @RequestBody task: Task): ResponseEntity<Task> =
+            if (user.tasks.contains(task)) taskService.save(task).let { ResponseEntity<Task>(it, HttpStatus.ACCEPTED) }
+            else ResponseEntity(HttpStatus.UNAUTHORIZED)
 
     @ResponseBody
-    @RequestMapping("/update")
-    fun update(@RequestBody task: TaskEntity,
-               @RequestBody with: TaskEntity): TaskEntity = TODO()
-
-    @ResponseBody
+    @Secured("ROLE_USER")
     @RequestMapping("/delete/{id}")
-    fun delete(@PathVariable("id") id: Int): TaskEntity = TODO()
+    fun delete(@AuthenticationPrincipal user: User,
+               @PathVariable("id") id: Int): ResponseEntity<Task> =
+            if (user.tasks.none { it.id == id }) ResponseEntity(HttpStatus.UNAUTHORIZED)
+            else taskService.delete(id).let { ResponseEntity<Task>(HttpStatus.ACCEPTED) }
 
     @ResponseBody
-    @RequestMapping("/update/{id}")
-    fun update(@PathVariable("id") id: Int,
-               @RequestBody task: TaskEntity): TaskEntity = TODO()
-
-    @ResponseBody
-    @RequestMapping("/projects/{id}")
-    fun getProjectsFromTask(@PathVariable("id") id: Int): List<ProjectEntity> = TODO()
-
-    @ResponseBody
+    @Secured("ROLE_USER")
     @RequestMapping("/users/{id}")
-    fun getUsersFromTask(@PathVariable("id") id: Int): List<UserEntity> = TODO()
+    fun getUsersFromTask(@PathVariable("id") id: Int): Set<User> =
+            taskService.findTaskById(id).users
 
     @ResponseBody
+    @Secured("ROLE_USER")
     @RequestMapping("/get/{id}")
-    fun findTaskById(@PathVariable("id") id: Int): TaskEntity? = TODO()
+    fun findTaskById(@PathVariable("id") id: Int): Task? =
+            taskService.findTaskById(id)
 
     @ResponseBody
+    @Secured("ROLE_USER")
     @RequestMapping("/get/{location}")
-    fun findTasksByLocation(@PathVariable("location") location: String): List<TaskEntity> = TODO()
+    fun findTasksByLocation(@PathVariable("location") location: String): List<Task> =
+            taskService.findTasksByLocation(location)
+
 }

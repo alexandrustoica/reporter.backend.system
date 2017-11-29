@@ -2,7 +2,7 @@ package taskly.system.repository
 
 import org.springframework.data.repository.CrudRepository
 import org.springframework.stereotype.Repository
-import taskly.system.domain.TaskEntity
+import taskly.system.domain.Task
 
 /**
  * @author Alexandru Stoica
@@ -10,6 +10,7 @@ import taskly.system.domain.TaskEntity
  */
 
 @Repository
-interface TaskRepository: CrudRepository<TaskEntity, Int> {
-    fun findTaskById(id: Int): TaskEntity?
+interface TaskRepository : CrudRepository<Task, Int> {
+    fun findTaskById(id: Int): Task?
+    fun findTasksByLocation(location: String): List<Task>
 }

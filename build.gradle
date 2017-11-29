@@ -23,6 +23,7 @@ apply plugin: 'idea'
 
 repositories {
     mavenCentral()
+    maven { url 'https://jitpack.io' }
 }
 
 dependencies {
@@ -30,8 +31,16 @@ dependencies {
     compile('org.springframework.boot:spring-boot-starter-security')
     compile('org.springframework.boot:spring-boot-starter-web')
     runtime('mysql:mysql-connector-java')
+    compile group: 'io.jsonwebtoken', name: 'jjwt', version: '0.2'
+
     testCompile('org.springframework.boot:spring-boot-starter-test')
-    testCompile('org.springframework.security:spring-security-test')
+
+    // jUnit 5
+    testCompile('com.github.sbrannen:spring-test-junit5:1.0.0')
+    testCompile group: 'org.mockito', name: 'mockito-all', version: '1.8.4'
+    testCompile("org.junit.jupiter:junit-jupiter-api:5.0.1")
+    testRuntime("org.junit.jupiter:junit-jupiter-engine:5.0.1")
+    testCompile("org.junit.platform:junit-platform-launcher:1.0.0")
     compile "org.jetbrains.kotlin:kotlin-stdlib-jre8:$kotlin_version"
 }
 

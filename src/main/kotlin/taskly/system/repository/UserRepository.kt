@@ -2,7 +2,7 @@ package taskly.system.repository
 
 import org.springframework.data.repository.CrudRepository
 import org.springframework.stereotype.Repository
-import taskly.system.domain.UserEntity
+import taskly.system.domain.User
 
 /**
  * @author Alexandru Stoica
@@ -10,6 +10,8 @@ import taskly.system.domain.UserEntity
  */
 
 @Repository
-interface UserRepository: CrudRepository<UserEntity, Int> {
-    fun findUserById(id: Int): UserEntity?
+interface UserRepository : CrudRepository<User, Int> {
+    fun findUserById(id: Int): User?
+    fun findByUsername(name: String): User?
+    fun findAllByUsername(username: String): List<User>
 }
