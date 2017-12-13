@@ -1,5 +1,6 @@
 package taskly.system.domain
 
+import com.fasterxml.jackson.annotation.JsonIgnore
 import org.hibernate.annotations.CreationTimestamp
 import org.hibernate.validator.constraints.Email
 import org.springframework.security.core.GrantedAuthority
@@ -15,6 +16,7 @@ import javax.persistence.*
  */
 
 @Entity
+
 @Table(name = "User", uniqueConstraints =
 arrayOf(UniqueConstraint(columnNames = arrayOf("username", "email"))))
 data class User
@@ -25,14 +27,18 @@ constructor(
         private val username: String,
         private val password: String,
         @Email val email: String,
-        val profileImageUrl: String,
-        @Temporal(TemporalType.TIMESTAMP) @CreationTimestamp
+        @CreationTimestamp @Temporal(TemporalType.TIMESTAMP)
         val date: Calendar,
 
+        @OrderBy("id")
+        @JsonIgnore
         @ManyToMany(mappedBy = "users", cascade = arrayOf(CascadeType.PERSIST))
-        val tasks: Set<Task> = setOf()) : Serializable, UserDetails {
+        val tasks: List<Task> = listOf()) : Serializable, UserDetails {
 
-    fun addTask(task: Task): User = copy(tasks = tasks + task)
+    constructor() : this(0, "default", "default",
+            "default", "default@email.com", Calendar.getInstance())
+
+    override fun toString(): String = username
 
     override fun getUsername(): String = username
 
@@ -48,7 +54,4 @@ constructor(
     override fun isAccountNonExpired(): Boolean = true
 
     override fun isAccountNonLocked(): Boolean = true
-
-    constructor() : this(0, "default", "default", "default", "default@email.com", "default", Calendar.getInstance())
-
 }

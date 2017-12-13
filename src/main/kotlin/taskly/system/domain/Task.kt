@@ -1,11 +1,12 @@
 package taskly.system.domain
 
+import com.fasterxml.jackson.annotation.JsonIgnore
+import io.swagger.annotations.ApiModel
+import io.swagger.annotations.ApiModelProperty
 import org.hibernate.annotations.CreationTimestamp
 import java.io.Serializable
-import java.sql.Time
 import java.util.*
 import javax.persistence.*
-import javax.validation.constraints.NotNull
 
 /**
  * @author Alexandru Stoica
@@ -13,26 +14,37 @@ import javax.validation.constraints.NotNull
  */
 
 @Entity
+@ApiModel
 @Table(name = "Task")
-data class Task
-constructor(
+data class Task constructor(
+
+        @ApiModelProperty(hidden = true)
         @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
         val id: Int,
+
         val text: String,
         val location: String,
-        @Temporal(TemporalType.TIMESTAMP) @CreationTimestamp
-        val date: Calendar,
-        val timeEstimated: Time,
-        val deadline: Calendar,
         val done: Boolean,
         val points: Int,
 
-        @ManyToMany(cascade = arrayOf(CascadeType.ALL), targetEntity = User::class)
-        @JoinTable(name = "Workflow", joinColumns = arrayOf(JoinColumn(name = "id_task", referencedColumnName = "id")),
-                inverseJoinColumns = arrayOf(JoinColumn(name = "id_user", referencedColumnName = "id")))
-        @NotNull val users: Set<User> = setOf()) : Serializable {
+        @ApiModelProperty(hidden = true)
+        @Temporal(TemporalType.TIMESTAMP) @CreationTimestamp
+        val date: Calendar,
 
-    constructor() : this(0, "", "", Calendar.getInstance(), Time(0), Calendar.getInstance(), false, 0)
-    constructor(id: Int, text: String, location: String, done: Boolean) : this(id, text, location,
-            Calendar.getInstance(), Time(0), Calendar.getInstance(), done, 0)
+        @JsonIgnore
+        @OrderBy(value="id")
+        @ApiModelProperty(hidden = true)
+        @ManyToMany(targetEntity = User::class)
+        @JoinTable(name = "Workflow",
+                joinColumns = arrayOf(JoinColumn(name = "id_task", referencedColumnName = "id")),
+                inverseJoinColumns = arrayOf(JoinColumn(name = "id_user", referencedColumnName = "id")))
+        val users: List<User> = listOf()) : Serializable {
+
+    constructor() : this(0, "", "", false, 0, Calendar.getInstance())
+
+    constructor(id: Int, text: String, location: String, done: Boolean) :
+            this(id, text, location, done, 0, Calendar.getInstance())
+
+    override fun toString(): String = text
+    fun pushUser(user: User) = copy(users = users + listOf(user))
 }

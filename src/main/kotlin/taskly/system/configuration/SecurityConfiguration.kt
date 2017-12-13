@@ -24,9 +24,11 @@ import taskly.system.service.UserService
 
 
 @Configuration
-@ComponentScan(basePackages = arrayOf("taskly.system.service",
-        "taskly.system.security", "taskly.system.repository"))
 @EnableWebSecurity
+@ComponentScan(basePackages = arrayOf(
+        "taskly.system.service",
+        "taskly.system.security",
+        "taskly.system.repository"))
 class SecurityConfiguration : WebSecurityConfigurerAdapter() {
 
     @Autowired
@@ -50,7 +52,8 @@ class SecurityConfiguration : WebSecurityConfigurerAdapter() {
                 .csrf().disable().exceptionHandling().accessDeniedPage("/access-denied").and()
                 .authorizeRequests()
                 .antMatchers("/api/login/*").permitAll()
-                .antMatchers("/user/register").permitAll()
+                .antMatchers("/login/*").permitAll()
+                .antMatchers("/users/register").permitAll()
                 .anyRequest().authenticated().and()
                 .addFilter(JsonWebTokenAuthorizationFilter(authenticationManager(), constants, userRepository))
                 .addFilter(JsonWebTokenAuthenticationFilter(authenticationManager(), constants, userService))

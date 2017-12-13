@@ -1,12 +1,13 @@
 package taskly.system.service
 
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
 import taskly.system.domain.Task
+import taskly.system.domain.User
 import taskly.system.exception.TaskNotFoundException
-import taskly.system.exception.UnableToSaveTaskException
 import taskly.system.repository.TaskRepository
-import taskly.system.security.SecurityConstants
 
 @Service
 class TaskService {
@@ -14,18 +15,10 @@ class TaskService {
     @Autowired
     private lateinit var taskRepository: TaskRepository
 
-    @Autowired
-    private lateinit var securityConstants: SecurityConstants
+    fun save(task: Task): Task? = taskRepository.save(task)
 
-
-    fun save(task: Task) = taskRepository.save(task) ?:
-            throw UnableToSaveTaskException()
-
-    fun delete(id: Int) =
-            findTaskById(id).let { taskRepository.delete(it) }
-
-    fun findTasksByLocation(location: String) =
-            taskRepository.findTasksByLocation(location)
+    fun getTasksForUser(user: User, page: Pageable): Page<Task> =
+            taskRepository.findByUsersContaining(user, page)
 
     @Throws(TaskNotFoundException::class)
     fun findTaskById(id: Int) =
