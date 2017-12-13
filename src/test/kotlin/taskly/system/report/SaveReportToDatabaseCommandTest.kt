@@ -8,7 +8,10 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories
+import org.springframework.test.annotation.DirtiesContext
+import org.springframework.test.context.TestPropertySource
 import org.springframework.test.context.junit.jupiter.SpringExtension
+import taskly.system.repository.TaskRepository
 
 /**
  * @author Alexandru Stoica
@@ -19,14 +22,18 @@ import org.springframework.test.context.junit.jupiter.SpringExtension
 @ExtendWith(SpringExtension::class)
 @EnableJpaRepositories("taskly.system")
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
-class SaveReportToDatabaseCommandTest {
+@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
+@TestPropertySource(locations = arrayOf("classpath:integrationtests.properties"))
+private class SaveReportToDatabaseCommandTest {
 
     @Autowired
     private lateinit var repository: ReportRepository
 
+    @Autowired
+    private lateinit var taskRepository: TaskRepository
+
     @Test
-    internal fun whenSavingReport_UserExists_ExpectReportSaved() {
-        println(repository.findAll())
+    fun whenSavingReport_UserExists_ExpectReportSaved() {
         assertThat(repository, IsNull.notNullValue())
     }
 }
