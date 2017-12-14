@@ -101,20 +101,22 @@ class ReportServiceTest {
     @Test
     fun `when inserting report with user and user exists expect user owns report`() {
         // given:
-        val user =  userRepository.save(User())
+        val user = userRepository.save(User())
         val report = Report().copy(user = user)
         // when:
         val expected = service.save(report)
         // then:
-        assertThat(reportRepository.findReportsByUser(user, PageRequest(0, 10)).content,
+        assertThat(reportRepository.findReportsByUser(user,
+                PageRequest(0, 10)).content,
                 IsIterableContainingInAnyOrder.containsInAnyOrder(expected))
     }
 
     @Test
     fun `when getting all reports from user and user exists expect user's reports`() {
         // given:
-        val user =  userRepository.save(User())
-        listOf(Report().copy(user = user), Report().copy(user = user)).forEach { service.save(it) }
+        val user = userRepository.save(User())
+        listOf(Report().copy(user = user), Report().copy(user = user))
+                .forEach { service.save(it) }
         // when:
         val reports = service.findByUser(user, PageRequest(0, 10))
         // then:

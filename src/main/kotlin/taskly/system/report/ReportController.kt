@@ -23,7 +23,7 @@ import taskly.system.repository.UserRepository
 class ReportController {
 
     @Autowired
-    private lateinit var reportRepository: ReportRepository
+    private lateinit var reportService: ReportService
 
     @Autowired
     private lateinit var userRepository: UserRepository
@@ -33,9 +33,32 @@ class ReportController {
     @PostMapping("")
     fun insert(@AuthenticationPrincipal @ApiIgnore user: User,
                @RequestBody report: Report): ResponseEntity<Report?> =
-            reportRepository.save(report.copy(user = getUserById(user.id)))?.
+            reportService.save(report.copy(user = getUserById(user.id)))?.
                     let { ResponseEntity(it, HttpStatus.ACCEPTED) }
                     ?: ResponseEntity(HttpStatus.UNAUTHORIZED)
+
+    @ResponseBody
+    @Secured("ROLE_USER")
+    @PutMapping("")
+    fun update(@AuthenticationPrincipal @ApiIgnore user: User,
+               @RequestBody report: Report): ResponseEntity<Report?> =
+            insert(user, report)
+
+    @ResponseBody
+    @Secured("ROLE_USER")
+    @DeleteMapping("/{id}")
+    fun delete(@AuthenticationPrincipal @ApiIgnore user: User,
+               @PathVariable id: Int): ResponseEntity<Report?> =
+            reportService.delete(id)?.
+                    let { ResponseEntity(it, HttpStatus.ACCEPTED) }
+                    ?: ResponseEntity(HttpStatus.UNAUTHORIZED)
+
+    @ResponseBody
+    @Secured("ROLE_USER")
+    @GetMapping("/{id}")
+    fun getReportById(@AuthenticationPrincipal @ApiIgnore user: User,
+                      @PathVariable id: Int): Report =
+            reportService.findById(id)
 
     @ResponseBody
     @Secured("ROLE_USER")
@@ -44,7 +67,8 @@ class ReportController {
             @AuthenticationPrincipal @ApiIgnore user: User,
             @RequestParam page: Int,
             @RequestParam size: Int): Page<Report> =
-            reportRepository.findReportsByUser(getUserById(user.id), PageRequest(page, size))
+            reportService.findByUser(getUserById(user.id), PageRequest(page, size))
+
 
     private fun getUserById(id: Int): User =
             userRepository.findUserById(id) ?: throw UserNotFound()
