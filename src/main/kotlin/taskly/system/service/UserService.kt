@@ -8,7 +8,7 @@ import org.springframework.security.core.userdetails.UserDetailsService
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.stereotype.Service
 import taskly.system.domain.User
-import taskly.system.exception.UserNotFoundException
+import taskly.system.exception.UserNotFound
 import taskly.system.repository.UserRepository
 import taskly.system.security.SecurityConstants
 import java.util.*
@@ -23,17 +23,17 @@ class UserService : UserDetailsService {
     @Autowired
     private lateinit var securityConstants: SecurityConstants
 
-    @Throws(UserNotFoundException::class)
+    @Throws(UserNotFound::class)
     override fun loadUserByUsername(username: String): UserDetails =
             userRepository.findByUsername(username) ?:
-                    throw UserNotFoundException()
+                    throw UserNotFound()
 
     fun save(user: User): User? = userRepository.save(
             user.copy(password = BCryptPasswordEncoder().encode(user.password)))
 
-    @Throws(UserNotFoundException::class)
+    @Throws(UserNotFound::class)
     fun findUserById(id: Int) = userRepository.findUserById(id) ?:
-            throw UserNotFoundException()
+            throw UserNotFound()
 
     fun getJsonWebToken(user: User): String = Jwts.builder()
             .setSubject(user.username)

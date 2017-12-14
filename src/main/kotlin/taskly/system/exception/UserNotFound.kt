@@ -5,4 +5,4 @@ package taskly.system.exception
  * @version 1.0
  */
 
-class UserNotFoundException : RuntimeException("404 User Not Found")
+class UserNotFound: RuntimeException("404 User Not Found")

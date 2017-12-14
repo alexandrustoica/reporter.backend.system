@@ -7,4 +7,7 @@ import java.io.Serializable
  * @version 1.0
  */
 
-data class Location(val latitude: Long, val longitude: Long): Serializable
+data class Location
+constructor(val latitude: Double, val longitude: Double) : Serializable {
+    constructor(): this(0.0, 0.0)
+}

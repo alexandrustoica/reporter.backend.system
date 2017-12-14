@@ -32,12 +32,12 @@ data class Task constructor(
         val date: Calendar,
 
         @JsonIgnore
-        @OrderBy(value="id")
+        @OrderBy(value="id_user")
         @ApiModelProperty(hidden = true)
         @ManyToMany(targetEntity = User::class)
         @JoinTable(name = "Workflow",
                 joinColumns = arrayOf(JoinColumn(name = "id_task", referencedColumnName = "id")),
-                inverseJoinColumns = arrayOf(JoinColumn(name = "id_user", referencedColumnName = "id")))
+                inverseJoinColumns = arrayOf(JoinColumn(name = "id_user", referencedColumnName = "id_user")))
         val users: List<User> = listOf()) : Serializable {
 
     constructor() : this(0, "", "", false, 0, Calendar.getInstance())
