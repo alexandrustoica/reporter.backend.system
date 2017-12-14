@@ -1,0 +1,11 @@
+.gradle/
+.idea/.name
+.idea/dataSources.local.xml
+.idea/dataSources/52939f5b-f7ea-40ee-8fc2-a37786a6d673.xml
+.idea/dataSources/52939f5b-f7ea-40ee-8fc2-a37786a6d673/
+.idea/dataSources/b43292b2-763d-474e-bb1e-03c45c636fc9/storage_v2/
+.idea/dataSources/bee70bf3-2100-44f1-a6df-aad44f3061ea.xml
+.idea/workspace.xml
+build/
+out/
+/.idea/

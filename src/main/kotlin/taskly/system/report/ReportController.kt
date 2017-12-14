@@ -9,9 +9,9 @@ import org.springframework.security.access.annotation.Secured
 import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.web.bind.annotation.*
 import springfox.documentation.annotations.ApiIgnore
-import taskly.system.domain.User
-import taskly.system.exception.UserNotFound
-import taskly.system.repository.UserRepository
+import taskly.system.user.User
+import taskly.system.user.UserNotFound
+import taskly.system.user.UserRepository
 
 /**
  * @author Alexandru Stoica

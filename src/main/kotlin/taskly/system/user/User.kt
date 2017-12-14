@@ -1,4 +1,4 @@
-package taskly.system.domain
+package taskly.system.user
 
 import com.fasterxml.jackson.annotation.JsonIgnore
 import io.swagger.annotations.ApiModel
@@ -42,13 +42,7 @@ data class User(
         @OneToMany(mappedBy = "user",
                 targetEntity = Report::class,
                 cascade = arrayOf(CascadeType.PERSIST))
-        val reports: List<Report> = listOf(),
-
-        @JsonIgnore
-        @OrderBy("id")
-        @ApiModelProperty(hidden = true)
-        @ManyToMany(mappedBy = "users", cascade = arrayOf(CascadeType.PERSIST))
-        val tasks: List<Task> = listOf()) : Serializable, UserDetails {
+        val reports: List<Report> = listOf()) : Serializable, UserDetails {
 
     constructor() : this(0, "default", "default",
             "default", "default@email.com", Calendar.getInstance())

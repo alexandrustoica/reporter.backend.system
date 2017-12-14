@@ -16,8 +16,8 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories
 import org.springframework.test.annotation.DirtiesContext
 import org.springframework.test.context.TestPropertySource
 import org.springframework.test.context.junit.jupiter.SpringExtension
-import taskly.system.domain.User
-import taskly.system.repository.UserRepository
+import taskly.system.user.User
+import taskly.system.user.UserRepository
 
 /**
  * @author Alexandru Stoica

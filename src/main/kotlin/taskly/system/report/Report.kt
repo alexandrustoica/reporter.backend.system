@@ -5,7 +5,7 @@ import io.swagger.annotations.ApiModel
 import io.swagger.annotations.ApiModelProperty
 import org.hibernate.annotations.CreationTimestamp
 import org.springframework.data.annotation.PersistenceConstructor
-import taskly.system.domain.User
+import taskly.system.user.User
 import java.io.Serializable
 import java.util.*
 import javax.persistence.*

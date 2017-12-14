@@ -4,7 +4,7 @@ import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.data.repository.PagingAndSortingRepository
 import org.springframework.stereotype.Repository
-import taskly.system.domain.User
+import taskly.system.user.User
 
 /**
  * @author Alexandru Stoica

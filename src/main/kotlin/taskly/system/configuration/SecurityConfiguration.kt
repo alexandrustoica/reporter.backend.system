@@ -10,11 +10,11 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.config.http.SessionCreationPolicy
 import org.springframework.security.core.userdetails.UserDetailsService
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
-import taskly.system.repository.UserRepository
 import taskly.system.security.JsonWebTokenAuthenticationFilter
 import taskly.system.security.JsonWebTokenAuthorizationFilter
 import taskly.system.security.SecurityConstants
-import taskly.system.service.UserService
+import taskly.system.user.UserRepository
+import taskly.system.user.UserService
 
 
 /**
@@ -25,10 +25,7 @@ import taskly.system.service.UserService
 
 @Configuration
 @EnableWebSecurity
-@ComponentScan(basePackages = arrayOf(
-        "taskly.system.service",
-        "taskly.system.security",
-        "taskly.system.repository"))
+@ComponentScan(basePackages = arrayOf("taskly.system.security"))
 class SecurityConfiguration : WebSecurityConfigurerAdapter() {
 
     @Autowired

@@ -1,4 +1,4 @@
-package taskly.system.exception
+package taskly.system.user
 
 /**
  * @author Alexandru Stoica

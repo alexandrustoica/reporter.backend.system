@@ -1,9 +1,7 @@
-package taskly.system.controller
+package taskly.system.user
 
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.web.bind.annotation.*
-import taskly.system.domain.User
-import taskly.system.service.UserService
 
 /**
  * @author Alexandru Stoica
