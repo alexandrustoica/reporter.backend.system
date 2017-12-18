@@ -54,7 +54,6 @@ class SecurityConfiguration : WebSecurityConfigurerAdapter() {
                 .anyRequest().authenticated().and()
                 .addFilter(JsonWebTokenAuthorizationFilter(authenticationManager(), constants, userRepository))
                 .addFilter(JsonWebTokenAuthenticationFilter(authenticationManager(), constants, userService))
-                .csrf().disable().exceptionHandling().accessDeniedPage("/access-denied").and()
-                .httpBasic()
+                .csrf().disable().exceptionHandling().accessDeniedPage("/access-denied")
     }
 }

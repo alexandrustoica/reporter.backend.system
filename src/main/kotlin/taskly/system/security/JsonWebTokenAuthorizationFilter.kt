@@ -25,7 +25,7 @@ class JsonWebTokenAuthorizationFilter(
             request: HttpServletRequest,
             response: HttpServletResponse,
             chain: FilterChain) {
-        val header = response.getHeader(constants.HEADER_STRING) ?: ""
+        val header = request.getHeader(constants.HEADER_STRING) ?: ""
         if (header == "" || !header.startsWith(constants.TOKEN_PREFIX)) {
             chain.doFilter(request, response)
             return
