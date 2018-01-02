@@ -1,7 +1,6 @@
 package taskly.system.report
 
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageRequest
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
@@ -12,6 +11,8 @@ import springfox.documentation.annotations.ApiIgnore
 import taskly.system.user.User
 import taskly.system.user.UserNotFound
 import taskly.system.user.UserRepository
+import java.util.*
+import java.util.Calendar.DAY_OF_YEAR
 
 /**
  * @author Alexandru Stoica
@@ -66,9 +67,19 @@ class ReportController {
     fun getAllReportsFromCurrentUser(
             @AuthenticationPrincipal @ApiIgnore user: User,
             @RequestParam page: Int,
-            @RequestParam size: Int): Page<Report> =
-            reportService.findByUser(getUserById(user.id), PageRequest(page, size))
+            @RequestParam size: Int): List<Report> =
+            reportService.findByUser(getUserById(user.id), PageRequest(page, size)).content
 
+    @ResponseBody
+    @Secured("ROLE_USER")
+    @GetMapping("/latest")
+    fun getReportsFromLatestWeekFromCurrentUser(
+            @AuthenticationPrincipal @ApiIgnore user: User): List<Report> {
+        val dateFrom7DaysAgo = Calendar.getInstance()
+                .also { it.add(DAY_OF_YEAR, -7) }
+        return reportService.findByUserAndDateAfter(user,
+                dateFrom7DaysAgo, PageRequest(0, 1000))
+    }
 
     private fun getUserById(id: Int): User =
             userRepository.findUserById(id) ?: throw UserNotFound()

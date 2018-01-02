@@ -5,6 +5,7 @@ import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
 import taskly.system.user.User
+import java.util.*
 
 /**
  * @author Alexandru Stoica
@@ -21,7 +22,7 @@ class ReportService {
             reportRepository.save(report)
 
     fun delete(report: Report): Report? =
-            reportRepository.delete(report).let{ report }
+            reportRepository.delete(report).let { report }
 
     fun delete(id: Int): Report? =
             findById(id).let { delete(it) }
@@ -34,4 +35,8 @@ class ReportService {
 
     fun findByUser(user: User, page: Pageable): Page<Report> =
             reportRepository.findReportsByUser(user, page)
+
+    fun findByUserAndDateAfter(
+            user: User, date: Calendar, page: Pageable): List<Report> =
+            reportRepository.findReportsByUserAndDateAfter(user, date, page)
 }
