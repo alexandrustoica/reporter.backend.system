@@ -31,7 +31,7 @@ import taskly.system.user.UserRepository
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 @TestPropertySource(locations = arrayOf("classpath:integrationtests.properties"))
-class ReportServiceTest {
+public class ReportServiceTest {
 
     @Autowired
     private lateinit var service: ReportService

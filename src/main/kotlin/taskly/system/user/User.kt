@@ -10,6 +10,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority
 import org.springframework.security.core.userdetails.UserDetails
 import taskly.system.report.Report
 import java.io.Serializable
+import taskly.system.notification.Notification
 import java.util.*
 import javax.persistence.*
 
@@ -22,7 +23,7 @@ import javax.persistence.*
 @ApiModel
 @Table(name = "User", uniqueConstraints =
 arrayOf(UniqueConstraint(columnNames = arrayOf("username", "email"))))
-data class User(
+public data class User(
 
         @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
         @Column(name = "id_user")
@@ -35,6 +36,13 @@ data class User(
         @ApiModelProperty(hidden = true)
         @CreationTimestamp @Temporal(TemporalType.TIMESTAMP)
         val date: Calendar,
+
+        @JsonIgnore
+        @OrderBy("id_notification")
+        @ApiModelProperty(hidden = true)
+        @OneToMany(mappedBy = "user",
+                targetEntity = Notification::class)
+        val notifications: List<Notification> = listOf(),
 
         @JsonIgnore
         @OrderBy("id_report")

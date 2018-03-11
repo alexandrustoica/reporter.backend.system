@@ -1,6 +1,7 @@
 package taskly.system.report
 
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageRequest
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
@@ -67,8 +68,8 @@ class ReportController {
     fun getAllReportsFromCurrentUser(
             @AuthenticationPrincipal @ApiIgnore user: User,
             @RequestParam page: Int,
-            @RequestParam size: Int): List<Report> =
-            reportService.findByUser(getUserById(user.id), PageRequest(page, size)).content
+            @RequestParam size: Int): Page<Report> =
+            reportService.findByUser(getUserById(user.id), PageRequest(page, size))
 
     @ResponseBody
     @Secured("ROLE_USER")

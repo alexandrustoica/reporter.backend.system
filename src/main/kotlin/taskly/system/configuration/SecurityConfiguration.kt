@@ -25,7 +25,7 @@ import taskly.system.user.UserService
 
 @Configuration
 @EnableWebSecurity
-@ComponentScan(basePackages = arrayOf("taskly.system.security"))
+@ComponentScan(basePackages = ["taskly.system.security"])
 class SecurityConfiguration : WebSecurityConfigurerAdapter() {
 
     @Autowired
