@@ -30,7 +30,7 @@ import taskly.system.user.UserRepository
 @ComponentScan("taskly.system.notification", "taskly.system.user", "taskly.system.security")
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
-@TestPropertySource(locations = arrayOf("classpath:integrationtests.properties"))
+@TestPropertySource(locations = ["classpath:integrationtests.properties"])
 class NotificationServiceTest {
 
     @Autowired
@@ -43,7 +43,7 @@ class NotificationServiceTest {
     private lateinit var userRepository: UserRepository
 
     @Test
-    fun `when getting notifications for user expect notifications`() {
+    fun whenGettingNotificationsForUser_UserExists_ExpectNotifications() {
         // given:
         val user = User().let { userRepository.save(it) }
         val notifications = listOf(Notification(user), Notification(user), Notification(user))

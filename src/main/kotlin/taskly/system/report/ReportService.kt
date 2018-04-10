@@ -34,7 +34,10 @@ class ReportService {
             reportRepository.findReportById(id) ?: throw ReportNotFound()
 
     fun findByUser(user: User, page: Pageable): Page<Report> =
-            reportRepository.findReportsByUser(user, page)
+            reportRepository.findReportsByUserOrderByDateDesc(user, page)
+
+    fun getPhotosFromPhoto(id: Int): List<Photo> =
+            findById(id).photos
 
     fun findByUserAndDateAfter(
             user: User, date: Calendar, page: Pageable): List<Report> =

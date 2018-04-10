@@ -18,6 +18,7 @@ import org.springframework.test.context.TestPropertySource
 import org.springframework.test.context.junit.jupiter.SpringExtension
 import taskly.system.user.User
 import taskly.system.user.UserRepository
+import java.io.File
 
 /**
  * @author Alexandru Stoica
@@ -30,7 +31,7 @@ import taskly.system.user.UserRepository
 @ComponentScan("taskly.system.report", "taskly.system.user", "taskly.system.security")
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
-@TestPropertySource(locations = arrayOf("classpath:integrationtests.properties"))
+@TestPropertySource(locations = ["classpath:integrationtests.properties"])
 public class ReportServiceTest {
 
     @Autowired
@@ -43,7 +44,7 @@ public class ReportServiceTest {
     private lateinit var userRepository: UserRepository
 
     @Test
-    fun `when saving report and report valid expect report saved`() {
+    fun whenSavingReport_WithValidReport_ExpectReportSaved() {
         // given:
         val report = Report()
         // when:
@@ -53,7 +54,7 @@ public class ReportServiceTest {
     }
 
     @Test
-    fun `when deleting report and report exists expect report deleted`() {
+    fun whenDeletingReport_ReportExists_ExpectReportDeleted() {
         // given:
         val report = service.save(Report())
         // when:
@@ -63,7 +64,7 @@ public class ReportServiceTest {
     }
 
     @Test
-    fun `when deleting report by id and report exists expect report deleted`() {
+    fun whenDeletingReportById_ReportExists_ExpectReportDeleted() {
         // given:
         val report = service.save(Report())
         // when:
@@ -73,7 +74,7 @@ public class ReportServiceTest {
     }
 
     @Test
-    fun `when getting report by id and report exists expect report`() {
+    fun whenGettingReportById_ReportExists_ExpectReport() {
         // given:
         val report = service.save(Report())
         // when:
@@ -83,13 +84,25 @@ public class ReportServiceTest {
     }
 
     @Test
-    fun `when getting report by id and report doesn't exist expect ReportNotFound`() {
+    fun whenGettingReportById_WithInvalidReport_ExpectReportNotFound() {
         // when:
         assertThrows(ReportNotFound::class.java, { service.findById(1) })
     }
 
     @Test
-    fun `when getting all reports and database has more than one report expect reports`() {
+    fun whenGettingPhotos_WithValidReport_ExpectValidPhoto() {
+        // given:
+        val subject = listOf(Photo(PhotoAsBytes(File("test.png"), "png").value()))
+        val report = Report(photos = subject)
+        // when:
+        val result = reportRepository.save(report)
+                .let { service.getPhotosFromPhoto(it.id) }
+        // then:
+        assertThat(subject, `is`(equalTo(result)))
+    }
+
+    @Test
+    fun whenGettingAllReports_DatabaseWithMultipleReports_ExpectReports() {
         // given:
         listOf(Report(), Report()).forEach { service.save(it) }
         // when:
@@ -99,20 +112,20 @@ public class ReportServiceTest {
     }
 
     @Test
-    fun `when inserting report with user and user exists expect user owns report`() {
+    fun whenInsertingReportWithUser_UserExists_ExpectUserOwnsReport() {
         // given:
         val user = userRepository.save(User())
         val report = Report().copy(user = user)
         // when:
         val expected = service.save(report)
         // then:
-        assertThat(reportRepository.findReportsByUser(user,
+        assertThat(reportRepository.findReportsByUserOrderByDateDesc(user,
                 PageRequest(0, 10)).content,
                 IsIterableContainingInAnyOrder.containsInAnyOrder(expected))
     }
 
     @Test
-    fun `when getting all reports from user and user exists expect user's reports`() {
+    fun whenGettingAllReportsFromUser_UserExists_ExpectReportsOwnedByUser() {
         // given:
         val user = userRepository.save(User())
         listOf(Report().copy(user = user), Report().copy(user = user))

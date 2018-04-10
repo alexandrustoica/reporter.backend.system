@@ -15,10 +15,6 @@ import taskly.system.user.UserRepository
 import java.util.*
 import java.util.Calendar.DAY_OF_YEAR
 
-/**
- * @author Alexandru Stoica
- * @version 1.0
- */
 
 @RestController
 @RequestMapping("/reports")
@@ -36,7 +32,7 @@ class ReportController {
     fun insert(@AuthenticationPrincipal @ApiIgnore user: User,
                @RequestBody report: Report): ResponseEntity<Report?> =
             reportService.save(report.copy(user = getUserById(user.id)))?.
-                    let { ResponseEntity(it, HttpStatus.ACCEPTED) }
+                    let {ResponseEntity(it, HttpStatus.ACCEPTED) }
                     ?: ResponseEntity(HttpStatus.UNAUTHORIZED)
 
     @ResponseBody
@@ -58,9 +54,18 @@ class ReportController {
     @ResponseBody
     @Secured("ROLE_USER")
     @GetMapping("/{id}")
-    fun getReportById(@AuthenticationPrincipal @ApiIgnore user: User,
-                      @PathVariable id: Int): Report =
+    fun getReportById(
+            @AuthenticationPrincipal @ApiIgnore user: User,
+            @PathVariable id: Int): Report =
             reportService.findById(id)
+
+    @ResponseBody
+    @Secured("ROLE_USER")
+    @GetMapping("/{id}/photos")
+    fun getPhotosFromReport(
+            @AuthenticationPrincipal @ApiIgnore user: User,
+            @PathVariable id: Int): List<Photo> =
+            reportService.getPhotosFromPhoto(id)
 
     @ResponseBody
     @Secured("ROLE_USER")

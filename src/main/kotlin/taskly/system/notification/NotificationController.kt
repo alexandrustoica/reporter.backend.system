@@ -8,6 +8,12 @@ import org.springframework.stereotype.Controller
 import taskly.system.user.User
 import taskly.system.user.UserNotFound
 import taskly.system.user.UserRepository
+import java.util.*
+import java.util.concurrent.TimeUnit
+import java.util.concurrent.Executors
+import java.util.concurrent.ScheduledExecutorService
+
+
 
 @Controller
 class NotificationController {
@@ -18,11 +24,17 @@ class NotificationController {
     @Autowired
     private lateinit var userRepository: UserRepository
 
-    @MessageMapping("/notifications")
-    @SendTo("/notifications/notifications")
-    fun getNotifications(@Payload idUser: Int):
-            List<Notification> {
-        return service.findNotificationsByUser(getUserById(idUser))
+    @Autowired
+    constructor(service: NotificationService, userRepository: UserRepository) {
+        this.service = service
+        this.userRepository = userRepository
+        val executor = Executors.newScheduledThreadPool(1)
+        executor.scheduleAtFixedRate({getNotifications("ana")}, 0, 3, TimeUnit.SECONDS)
+    }
+
+    @MessageMapping("/send/message")
+    fun getNotifications(message: String) {
+        println(message)
     }
 
     private fun getUserById(id: Int): User =

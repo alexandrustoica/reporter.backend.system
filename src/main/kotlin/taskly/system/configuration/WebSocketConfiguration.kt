@@ -12,11 +12,12 @@ class WebSocketConfiguration: AbstractWebSocketMessageBrokerConfigurer() {
 
     override fun configureMessageBroker(registry: MessageBrokerRegistry) {
         registry.setApplicationDestinationPrefixes("/app")
-        registry.enableSimpleBroker("/notifications")
-        super.configureMessageBroker(registry)
+                .enableSimpleBroker("/notifications")
     }
 
     override fun registerStompEndpoints(registry: StompEndpointRegistry) {
-        registry.addEndpoint("/notifications").setAllowedOrigins("*")
+        registry.addEndpoint("/ws")
+                .setAllowedOrigins("*")
+                .withSockJS()
     }
 }

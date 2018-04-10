@@ -14,11 +14,19 @@ import javax.persistence.*
 @ApiModel
 @Table(name = "report")
 data class Report @PersistenceConstructor constructor(
+
         @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
         @Column(name = "id_report")
         val id: Int = 0,
         val text: String = "default",
+        val title: String = "default",
         val location: Location = Location(),
+
+        @Lob
+        @JsonIgnore
+        @Column(length = 100000)
+        @ElementCollection(targetClass = Photo::class)
+        val photos: List<Photo> = listOf(),
 
         @ApiModelProperty(hidden = true)
         @Temporal(TemporalType.TIMESTAMP)
@@ -29,6 +37,6 @@ data class Report @PersistenceConstructor constructor(
         @ApiModelProperty(hidden = true)
         @ManyToOne(fetch = FetchType.LAZY,
                 targetEntity = User::class,
-                cascade = arrayOf(CascadeType.PERSIST))
+                cascade = [(CascadeType.PERSIST)])
         @JoinColumn(name = "id_user")
         val user: User? = null) : Serializable

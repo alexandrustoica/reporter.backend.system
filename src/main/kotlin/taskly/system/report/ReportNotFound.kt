@@ -3,10 +3,6 @@ package taskly.system.report
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.ResponseStatus
 
-/**
- * @author Alexandru Stoica
- * @version 1.0
- */
 
 @ResponseStatus(
         value = HttpStatus.NOT_FOUND,
