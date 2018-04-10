@@ -1,14 +1,13 @@
 package taskly.system.report
+
 import org.hamcrest.MatcherAssert.assertThat
-import org.hamcrest.Matchers.`is`
-import org.hamcrest.Matchers.equalTo
+import org.hamcrest.Matchers.*
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest
 import org.springframework.context.annotation.ComponentScan
-import org.springframework.data.domain.PageRequest
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories
 import org.springframework.test.annotation.DirtiesContext
 import org.springframework.test.context.TestPropertySource
@@ -37,20 +36,52 @@ class NotificationServiceTest {
     private lateinit var service: NotificationService
 
     @Autowired
-    private lateinit var notificationRepository: NotificationRepository
-
-    @Autowired
     private lateinit var userRepository: UserRepository
 
+    @Autowired
+    private lateinit var notificationRepository: NotificationRepository
+
     @Test
-    fun whenGettingNotificationsForUser_UserExists_ExpectNotifications() {
+    fun whenSavingNotification_ValidNotification_ExpectNotification() {
         // given:
-        val user = User().let { userRepository.save(it) }
-        val notifications = listOf(Notification(user), Notification(user), Notification(user))
-                .map { notificationRepository.save(it) }
+        val user = User()
+                .withExpoNotificationToken("test")
+                .let { userRepository.save(it) }
+        val subject = Notification("Title", "message", user)
         // when:
-        val actual = service.findNotificationsByUser(user)
+        val result = service.save(subject)
         // then:
-        assertThat(notifications[0], `is`(equalTo(actual[0])))
+        assertThat(result, both(`is`(equalTo(subject)))
+                .and(`is`(equalTo(notificationRepository
+                        .findNotificationsByUser(user).first()))))
     }
+
+    @Test
+    fun whenGettingUserNotifications_ValidUser_ExpectUserNotifications() {
+        // given:
+        val user = User()
+                .withExpoNotificationToken("token")
+                .let { userRepository.save(it) }
+        val notification = Notification("Title", "message", user)
+        val subject = listOf(service.save(notification),
+                service.save(notification.copy(id = 0)))
+        // when:
+        val result = service.getAllNotificationsFrom(user)
+        // then:
+        assertThat(result, `is`(equalTo(subject)))
+    }
+
+    @Test
+    fun whenUpdatingUserNotificationToken_ValidToken_ExpectTokenUpdated() {
+        // given:
+        val subject = "token"
+        val user = User().let { userRepository.save(it) }
+        // when:
+        val result = service.saveExpoNotificationTokenFor(user, subject)
+        // then:
+        assertThat(result.expoNotificationToken, both(`is`(equalTo(subject)))
+                .and(`is`(equalTo(userRepository.findUserById(user.id)?.expoNotificationToken))))
+    }
+
+
 }

@@ -22,7 +22,7 @@ import javax.persistence.*
 @Entity
 @ApiModel
 @Table(name = "User", uniqueConstraints =
-arrayOf(UniqueConstraint(columnNames = arrayOf("username", "email"))))
+    [(UniqueConstraint(columnNames = arrayOf("username", "email")))])
 public data class User(
 
         @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -49,8 +49,10 @@ public data class User(
         @ApiModelProperty(hidden = true)
         @OneToMany(mappedBy = "user",
                 targetEntity = Report::class,
-                cascade = arrayOf(CascadeType.PERSIST))
-        val reports: List<Report> = listOf()) : Serializable, UserDetails {
+                cascade = [(CascadeType.PERSIST)])
+        val reports: List<Report> = listOf(),
+
+        val expoNotificationToken: String = "") : Serializable, UserDetails {
 
     constructor() : this(0, "default", "default",
             "default", "default@email.com", Calendar.getInstance())
@@ -71,4 +73,7 @@ public data class User(
     override fun isAccountNonExpired(): Boolean = true
 
     override fun isAccountNonLocked(): Boolean = true
+
+    fun withExpoNotificationToken(expoNotificationToken: String): User =
+            copy(expoNotificationToken = expoNotificationToken)
 }

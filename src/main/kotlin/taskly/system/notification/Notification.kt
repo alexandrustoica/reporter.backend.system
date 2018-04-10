@@ -4,11 +4,6 @@ import com.fasterxml.jackson.annotation.JsonIgnore
 import io.swagger.annotations.ApiModel
 import io.swagger.annotations.ApiModelProperty
 import org.hibernate.annotations.CreationTimestamp
-import org.hibernate.validator.constraints.Email
-import org.springframework.security.core.GrantedAuthority
-import org.springframework.security.core.authority.SimpleGrantedAuthority
-import org.springframework.security.core.userdetails.UserDetails
-import taskly.system.report.Report
 import java.io.Serializable
 import java.util.*
 import javax.persistence.*
@@ -22,11 +17,13 @@ data class Notification(
         @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
         @Column(name = "id_notification")
         val id: Int,
-        val text: String,
+        val title: String,
+        val message: String,
 
         @ApiModelProperty(hidden = true)
         @CreationTimestamp @Temporal(TemporalType.TIMESTAMP)
         val date: Calendar,
+        val isRead: Boolean,
 
         @JsonIgnore
         @ApiModelProperty(hidden = true)
@@ -35,6 +32,6 @@ data class Notification(
         @JoinColumn(name = "id_user")
         val user: User? = null) : Serializable {
 
-        constructor(user: User): this(0, "default", Calendar.getInstance(), user)
-        constructor() : this(0, "default", Calendar.getInstance())
+        constructor(title: String, message: String, user: User):
+                this(0, title, message, Calendar.getInstance(), false, user)
 }
