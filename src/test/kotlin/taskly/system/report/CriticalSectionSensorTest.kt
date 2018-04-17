@@ -49,7 +49,7 @@ class CriticalSectionSensorTest {
         // when:
         val result = sensor.criticalSectionFormedAt(origin, 3000.0, 2)
         // then:
-        assertThat(result, `is`(equalTo(subject)))
+        assertThat(result?.id, `is`(equalTo(1)))
     }
 
     @Test
@@ -87,7 +87,7 @@ class CriticalSectionSensorTest {
         // when:
         val result = sensor.criticalSectionFormedAt(origin, 3000.0, 2)
         // then:
-        assertThat(result, `is`(equalTo(subject)))
+        assertThat(result?.id, `is`(equalTo(2)))
     }
 
     @Test
@@ -97,7 +97,7 @@ class CriticalSectionSensorTest {
         val reports = listOf(Report(Location(0.0, 0.0)),
                 Report(Location(0.01, 0.01)))
                 .map { reportsRepository.save(it) }
-        val subject =CriticalSection(origin = origin, radius = 3000.0,
+        val subject = CriticalSection(origin = origin, radius = 3000.0,
                 reports = reports)
                 .let { criticalSectionRepository.save(it) }
         // when:

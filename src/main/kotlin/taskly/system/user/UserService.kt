@@ -20,17 +20,29 @@ class UserService : UserDetailsService {
     @Autowired
     private lateinit var securityConstants: SecurityConstants
 
-    fun save(user: User): User? = userRepository.
-            save(user.copy(password = BCryptPasswordEncoder().encode(user.password)))
+    fun save(user: User): User? =
+            userRepository.save(user.copy(password =
+            BCryptPasswordEncoder().encode(user.password)))
 
     @Throws(UserNotFound::class)
     override fun loadUserByUsername(username: String): UserDetails =
-            userRepository.findByUsername(username) ?:
-                    throw UserNotFound()
+            userRepository.findByUsername(username) ?: throw UserNotFound()
 
     fun getJsonWebToken(user: User): String = Jwts.builder()
             .setSubject(user.username)
             .setExpiration(Date(System.currentTimeMillis() + securityConstants.EXPIRATION_TIME))
             .signWith(SignatureAlgorithm.HS512, securityConstants.SECRET.toByteArray())
             .compact()
+
+    fun delete(id: Int): User? =
+            getById(id)?.let { delete(it) }
+
+    fun delete(user: User): User? =
+            userRepository.delete(user).let { user }
+
+    fun getById(id: Int): User? =
+            userRepository.findUserById(id)
+
+    fun update(user: User): User? =
+            userRepository.save(user)
 }
