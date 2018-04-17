@@ -31,9 +31,6 @@ class CriticalSectionServiceTest {
     private lateinit var service: CriticalSectionService
 
     @Autowired
-    private lateinit var reportsRepository: ReportRepository
-
-    @Autowired
     private lateinit var criticalSectionRepository: CriticalSectionRepository
 
     @Test
@@ -80,5 +77,27 @@ class CriticalSectionServiceTest {
                 Location(0.0, 0.0), byDistance = 3000.0)
         // then:
         assertThat(result, `is`(equalTo(subject)))
+    }
+
+    @Test
+    fun whenSearchingForCriticalSection_WithValidLocation_ExpectCriticalSection() {
+        // given:
+        val subject = CriticalSection(Location(0.0, 0.0))
+                .let { criticalSectionRepository.save(it) }
+        // when:
+        val result = service.findAt(Location(0.0, 0.0), byDistance = 3000.0)
+        // then:
+        assertThat(result, `is`(equalTo(subject)))
+    }
+
+    @Test
+    fun whenSearchingForCriticalSection_WithInvalidLocation_ExpectNullValue() {
+        // given:
+        CriticalSection(Location(0.0, 0.0))
+                .let { criticalSectionRepository.save(it) }
+        // when:
+        val result = service.findAt(Location(10.0, 10.0), byDistance = 3000.0)
+        // then:
+        assertThat(result, `is`(nullValue()))
     }
 }

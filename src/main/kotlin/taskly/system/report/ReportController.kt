@@ -9,6 +9,7 @@ import org.springframework.security.access.annotation.Secured
 import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.web.bind.annotation.*
 import springfox.documentation.annotations.ApiIgnore
+import taskly.system.section.CriticalSectionSensor
 import taskly.system.user.User
 import taskly.system.user.UserNotFound
 import taskly.system.user.UserRepository
@@ -24,16 +25,28 @@ class ReportController {
     private lateinit var reportService: ReportService
 
     @Autowired
+    private lateinit var criticalSectionSensor: CriticalSectionSensor
+
+    @Autowired
     private lateinit var userRepository: UserRepository
+
+    private companion object {
+        const val radiusOfCriticalSection: Double = 2000.0
+        const val sizeOfCriticalSection: Int = 5
+    }
 
     @ResponseBody
     @Secured("ROLE_USER")
     @PostMapping("")
     fun insert(@AuthenticationPrincipal @ApiIgnore user: User,
-               @RequestBody report: Report): ResponseEntity<Report?> =
-            reportService.save(report.copy(user = getUserById(user.id)))?.
-                    let {ResponseEntity(it, HttpStatus.ACCEPTED) }
-                    ?: ResponseEntity(HttpStatus.UNAUTHORIZED)
+               @RequestBody report: Report): ResponseEntity<Report?> {
+        val result = reportService.save(report.copy(user = getUserById(user.id)))
+        criticalSectionSensor.criticalSectionFormedAt(report.location,
+                radiusOfCriticalSection,
+                sizeOfCriticalSection)
+        return result?.let { ResponseEntity(it, HttpStatus.ACCEPTED) }
+                ?: ResponseEntity(HttpStatus.UNAUTHORIZED)
+    }
 
     @ResponseBody
     @Secured("ROLE_USER")
@@ -46,10 +59,15 @@ class ReportController {
     @Secured("ROLE_USER")
     @DeleteMapping("/{id}")
     fun delete(@AuthenticationPrincipal @ApiIgnore user: User,
-               @PathVariable id: Int): ResponseEntity<Report?> =
-            reportService.delete(id)?.
-                    let { ResponseEntity(it, HttpStatus.ACCEPTED) }
-                    ?: ResponseEntity(HttpStatus.UNAUTHORIZED)
+               @PathVariable id: Int): ResponseEntity<Report?> {
+        val report = reportService.delete(id)
+        report?.let {
+            criticalSectionSensor.deleteIfNeedCriticalSectionFrom(it.location,
+                    radiusOfCriticalSection, sizeOfCriticalSection)
+        }
+        return report?.let { ResponseEntity(it, HttpStatus.ACCEPTED) }
+                ?: ResponseEntity(HttpStatus.UNAUTHORIZED)
+    }
 
     @ResponseBody
     @Secured("ROLE_USER")

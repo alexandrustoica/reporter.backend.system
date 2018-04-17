@@ -16,7 +16,6 @@ data class CriticalSection(
         @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
         @Column(name = "id_critical_section")
         val id: Int = 0,
-
         val origin: Location = Location(),
         val radius: Double = 0.0,
 
@@ -26,5 +25,9 @@ data class CriticalSection(
         @OneToMany(mappedBy = "section",
                 targetEntity = Report::class)
         val reports: List<Report> = listOf()) : Serializable {
+
+    constructor(origin: Location, radius: Double, reports: List<Report>) :
+            this(0, origin, radius, reports)
+
     constructor(location: Location) : this(0, location, 0.0, listOf())
 }
