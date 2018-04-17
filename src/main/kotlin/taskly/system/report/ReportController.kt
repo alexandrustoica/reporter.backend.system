@@ -105,6 +105,18 @@ class ReportController {
                 dateFrom7DaysAgo, PageRequest(0, 1000))
     }
 
+    @ResponseBody
+    @Secured("ROLE_POLICE")
+    @GetMapping("/{id}/solved")
+    fun markReportAsSolved(
+            @PathVariable id: Int,
+            @AuthenticationPrincipal @ApiIgnore user: User):
+            ResponseEntity<Report> =
+            reportService.markReportAsSolved(id)?.let {
+                ResponseEntity(it, HttpStatus.ACCEPTED)
+            } ?: ResponseEntity(HttpStatus.NOT_FOUND)
+
+
     private fun getUserById(id: Int): User =
             userRepository.findUserById(id) ?: throw UserNotFound()
 }

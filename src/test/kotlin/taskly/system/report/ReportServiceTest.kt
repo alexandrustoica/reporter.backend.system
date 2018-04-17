@@ -29,8 +29,10 @@ import java.io.File
 
 @DataJpaTest
 @ExtendWith(SpringExtension::class)
-@EnableJpaRepositories("taskly.system.report", "taskly.system.user")
-@ComponentScan("taskly.system.report", "taskly.system.user", "taskly.system.security")
+@EnableJpaRepositories("taskly.system.section",
+        "taskly.system.report", "taskly.system.user")
+@ComponentScan("taskly.system.section", "taskly.system.report",
+        "taskly.system.user", "taskly.system.security")
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 @TestPropertySource(locations = ["classpath:integrationtests.properties"])
@@ -167,5 +169,24 @@ public class ReportServiceTest {
         // then:
         assertThat(result, `is`(equalTo(subject)))
     }
-    
+
+    @Test
+    fun whenMarkingReportAsSolved_WithValidReport_ExpectReportSolved() {
+        // given:
+        val subject = Report().let { reportRepository.save(it) }
+        // when:
+        val result = service.markReportAsSolved(subject.id)
+        // then:
+        assertThat(result?.isSolved, `is`(equalTo(true)))
+    }
+
+    @Test
+    fun whenMarkingReportAsSpam_WithValidReport_ExpectReportSpammed() {
+        // given:
+        val subject = Report().let { reportRepository.save(it) }
+        // when:
+        val result = service.markReportAsSpam(subject.id)
+        // then:
+        assertThat(result?.isSpam, `is`(equalTo(true)))
+    }
 }

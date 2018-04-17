@@ -45,4 +45,12 @@ class ReportService {
     fun findByUserAndDateAfter(
             user: User, date: Calendar, page: Pageable): List<Report> =
             reportRepository.findReportsByUserAndDateAfter(user, date, page)
+
+    fun markReportAsSolved(id: Int): Report? =
+            reportRepository.findReportById(id)?.copy(isSolved = true)
+                    .let { reportRepository.save(it) }
+
+    fun markReportAsSpam(id: Int): Report? =
+            reportRepository.findReportById(id)?.copy(isSpam = true)
+                    .let { reportRepository.save(it) }
 }
