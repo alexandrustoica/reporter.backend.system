@@ -5,6 +5,7 @@ import io.swagger.annotations.ApiModel
 import io.swagger.annotations.ApiModelProperty
 import org.hibernate.annotations.CreationTimestamp
 import org.springframework.data.annotation.PersistenceConstructor
+import taskly.system.section.CriticalSection
 import taskly.system.user.User
 import java.io.Serializable
 import java.util.*
@@ -39,4 +40,18 @@ data class Report @PersistenceConstructor constructor(
                 targetEntity = User::class,
                 cascade = [(CascadeType.PERSIST)])
         @JoinColumn(name = "id_user")
-        val user: User? = null) : Serializable
+        val user: User? = null,
+
+        @JsonIgnore
+        @ApiModelProperty(hidden = true)
+        @ManyToOne(fetch = FetchType.LAZY,
+                targetEntity = CriticalSection::class,
+                cascade = [(CascadeType.PERSIST)])
+        @JoinColumn(name = "id_critical_section")
+        val section: CriticalSection? = null,
+
+        val isSpam: Boolean = false,
+        val isSolved: Boolean = false) : Serializable {
+
+    constructor(location: Location) : this(0, "default", "default", location)
+}

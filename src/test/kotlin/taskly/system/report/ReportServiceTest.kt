@@ -16,6 +16,8 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories
 import org.springframework.test.annotation.DirtiesContext
 import org.springframework.test.context.TestPropertySource
 import org.springframework.test.context.junit.jupiter.SpringExtension
+import taskly.system.specification.AllReportsInSectorOf
+import taskly.system.specification.SectorCriteria
 import taskly.system.user.User
 import taskly.system.user.UserRepository
 import java.io.File
@@ -135,4 +137,35 @@ public class ReportServiceTest {
         // then:
         assertThat(reports.numberOfElements, `is`(2))
     }
+
+    @Test
+    fun whenGettingReportsInSector_WithLocation_ExpectCorrectReports() {
+        // given:
+        val specification = AllReportsInSectorOf(
+                SectorCriteria(origin = Location(0.0, 0.0), radiusOfSector = 3000.0))
+        val reports = listOf(Report(Location(0.0, 0.0)),
+                Report(Location(0.01, 0.01)),
+                Report(Location(0.03, 0.03)))
+                .map { reportRepository.save(it) }
+        val subject = reports.subList(0, 2)
+        // when:
+        val result = reportRepository.findAll(specification)
+        // then:
+        assertThat(result, `is`(equalTo(subject)))
+    }
+
+    @Test
+    fun whenGettingAllReportsNearLocation_WithValidLocation_ExpectCorrectResult() {
+        // given:
+        val reports = listOf(Report(Location(0.0, 0.0)),
+                Report(Location(0.01, 0.01)),
+                Report(Location(0.02, 0.02)))
+                .map { reportRepository.save(it) }
+        val subject = reports.subList(0, 2)
+        // when:
+        val result = service.findAllReportsNear(Location(0.0, 0.0), byDistance = 3000.0)
+        // then:
+        assertThat(result, `is`(equalTo(subject)))
+    }
+    
 }
