@@ -5,6 +5,7 @@ import io.swagger.annotations.ApiModel
 import io.swagger.annotations.ApiModelProperty
 import org.hibernate.annotations.CreationTimestamp
 import org.springframework.data.annotation.PersistenceConstructor
+import taskly.system.notification.AsNotification
 import taskly.system.section.CriticalSection
 import taskly.system.user.User
 import java.io.Serializable
@@ -14,6 +15,7 @@ import javax.persistence.*
 @Entity
 @ApiModel
 @Table(name = "report")
+@AsNotification(of = ["title"])
 data class Report @PersistenceConstructor constructor(
 
         @Id @GeneratedValue(strategy = GenerationType.IDENTITY)

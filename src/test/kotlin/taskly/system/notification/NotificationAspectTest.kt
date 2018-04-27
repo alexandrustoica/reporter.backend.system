@@ -1,29 +1,33 @@
 package taskly.system.notification
 
+import com.nhaarman.mockito_kotlin.notNull
+import org.hamcrest.CoreMatchers
 import org.hamcrest.CoreMatchers.`is`
-import org.hamcrest.CoreMatchers.equalTo
-import org.hamcrest.MatcherAssert.assertThat
-import org.hamcrest.collection.IsIterableContainingInAnyOrder
-import org.junit.jupiter.api.Assertions.assertThrows
+import org.hamcrest.CoreMatchers.notNullValue
+import org.junit.Assert
+import org.junit.Assert.assertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.autoconfigure.EnableAutoConfiguration
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest
 import org.springframework.context.annotation.ComponentScan
-import org.springframework.context.annotation.Configuration
+
 import org.springframework.context.annotation.EnableAspectJAutoProxy
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories
 import org.springframework.test.annotation.DirtiesContext
-import org.springframework.test.context.ContextConfiguration
 import org.springframework.test.context.TestPropertySource
 import org.springframework.test.context.junit.jupiter.SpringExtension
 import taskly.system.report.*
-import taskly.system.specification.AllReportsInSectorOf
-import taskly.system.specification.SectorCriteria
+import taskly.system.section.CriticalSection
+import taskly.system.section.CriticalSectionRepository
+import taskly.system.section.CriticalSectionSensor
 import taskly.system.user.User
+import org.springframework.security.core.context.SecurityContextHolder
+import org.springframework.security.core.authority.AuthorityUtils
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
+
 
 @DataJpaTest
 @EnableAspectJAutoProxy
@@ -37,13 +41,48 @@ import taskly.system.user.User
 public class NotificationAspectTest {
 
     @Autowired
+    private lateinit var sensor: CriticalSectionSensor
+
+    @Autowired
+    private lateinit var reportsRepository: ReportRepository
+
+    @Autowired
     private lateinit var reportService: ReportService
 
+    @Autowired
+    private lateinit var criticalSectionRepository: CriticalSectionRepository
+
+    fun loginWith(user: User) {
+        SecurityContextHolder.getContext().authentication =
+                UsernamePasswordAuthenticationToken(user, user.authorities)
+    }
+
     @Test
-    fun whenSavingReport_WithValidReport_ExpectReportSaved() {
+    fun whenMarkingReportAsSolved_WithValidReport_ExpectNotificationSendToUser() {
         // given:
-        reportService.findByUser(User(), PageRequest(0, 10))
+        User().copy(expoNotificationToken = "ExponentPushToken[hp-mLhDdLUJi_1ztLaWkhH]")
+                .let { loginWith(it) }
+        val subject = Report(Location(0.0, 0.0)).let { reportsRepository.save(it) }
         // when:
+        val result = reportService.markReportAsSolved(subject.id)
         // then:
+        assertThat(result, `is`(notNullValue()))
+    }
+
+    @Test
+    fun whenDetectingCriticalSection_WithValidUser_ExpectNotificationSendToUser() {
+        // given:
+        val origin = Location(0.0, 0.0)
+        val reports = listOf(Report(Location(0.0, 0.0)),
+                Report(Location(0.01, 0.01)),
+                Report(Location(0.02, 0.02)))
+                .map { reportsRepository.save(it) }
+        CriticalSection(
+                origin = origin, radius = 3000.0,
+                reports = reports.subList(0, 2))
+        // when:
+        val result = sensor.criticalSectionFormedAt(origin, 3000.0, 2)
+        // then:
+        assertThat(result, `is`(notNullValue()))
     }
 }

@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
+import taskly.system.notification.SendNotification
 import taskly.system.specification.AllReportsInSectorOf
 import taskly.system.specification.SectorCriteria
 import taskly.system.user.User
@@ -46,10 +47,12 @@ class ReportService {
             user: User, date: Calendar, page: Pageable): List<Report> =
             reportRepository.findReportsByUserAndDateAfter(user, date, page)
 
+    @SendNotification("Your report {0} was solved by the police!")
     fun markReportAsSolved(id: Int): Report? =
             reportRepository.findReportById(id)?.copy(isSolved = true)
                     .let { reportRepository.save(it) }
 
+    @SendNotification("Your report {0} was marked as spam by our system!")
     fun markReportAsSpam(id: Int): Report? =
             reportRepository.findReportById(id)?.copy(isSpam = true)
                     .let { reportRepository.save(it) }

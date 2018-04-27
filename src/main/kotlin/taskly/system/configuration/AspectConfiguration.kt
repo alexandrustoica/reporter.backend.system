@@ -4,7 +4,7 @@ import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.ComponentScan
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.EnableAspectJAutoProxy
-import taskly.system.notification.TestAspect
+import taskly.system.notification.NotificationAspect
 
 @Configuration
 @EnableAspectJAutoProxy
@@ -12,7 +12,7 @@ import taskly.system.notification.TestAspect
 class AspectConfiguration {
 
     @Bean
-    fun testAspect(): TestAspect {
-        return TestAspect()
+    fun testAspect(): NotificationAspect {
+        return NotificationAspect()
     }
 }
