@@ -1,15 +1,9 @@
 package taskly.system.report
 
-import org.hamcrest.CoreMatchers
 import org.hamcrest.CoreMatchers.`is`
 import org.hamcrest.CoreMatchers.equalTo
-import org.hamcrest.Matchers.greaterThan
-import org.hamcrest.Matchers.lessThan
 import org.junit.Assert.*
-import org.junit.jupiter.api.Assertions.assertAll
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.function.Executable
-import kotlin.text.Typography.less
 
 class LocationTest {
 

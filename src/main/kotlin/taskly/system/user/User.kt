@@ -1,6 +1,7 @@
 package taskly.system.user
 
 import com.fasterxml.jackson.annotation.JsonIgnore
+import com.fasterxml.jackson.annotation.JsonProperty
 import io.swagger.annotations.ApiModel
 import io.swagger.annotations.ApiModelProperty
 import org.hibernate.annotations.CreationTimestamp
@@ -14,15 +15,10 @@ import taskly.system.notification.Notification
 import java.util.*
 import javax.persistence.*
 
-/**
- * @author Alexandru Stoica
- * @version 1.0
- */
-
 @Entity
 @ApiModel
 @Table(name = "User", uniqueConstraints =
-    [(UniqueConstraint(columnNames = arrayOf("username", "email")))])
+[(UniqueConstraint(columnNames = arrayOf("username", "email")))])
 public data class User(
 
         @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -32,6 +28,9 @@ public data class User(
         private val username: String,
         private val password: String,
         @Email val email: String,
+
+        @Enumerated(EnumType.STRING)
+        val role: UserRole = UserRole.USER,
 
         @ApiModelProperty(hidden = true)
         @CreationTimestamp @Temporal(TemporalType.TIMESTAMP)
@@ -55,7 +54,7 @@ public data class User(
         val expoNotificationToken: String = "") : Serializable, UserDetails {
 
     constructor() : this(0, "default", "default",
-            "default", "default@email.com", Calendar.getInstance())
+            "default", "default@email.com", UserRole.USER, Calendar.getInstance())
 
     override fun toString(): String = username
 
@@ -63,15 +62,22 @@ public data class User(
 
     override fun getPassword(): String = password
 
+    @JsonIgnore
     override fun getAuthorities(): MutableCollection<out GrantedAuthority> =
-            mutableListOf(SimpleGrantedAuthority("ROLE_USER"))
+            mutableListOf(SimpleGrantedAuthority(
+                    if (role == UserRole.POLICE) "ROLE_POLICE" else "ROLE_USER"),
+                    SimpleGrantedAuthority("ROLE_USER"))
 
+    @JsonIgnore
     override fun isEnabled(): Boolean = true
 
+    @JsonIgnore
     override fun isCredentialsNonExpired(): Boolean = true
 
+    @JsonIgnore
     override fun isAccountNonExpired(): Boolean = true
 
+    @JsonIgnore
     override fun isAccountNonLocked(): Boolean = true
 
     fun withExpoNotificationToken(expoNotificationToken: String): User =

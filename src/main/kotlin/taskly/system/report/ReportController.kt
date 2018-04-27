@@ -116,6 +116,16 @@ class ReportController {
                 ResponseEntity(it, HttpStatus.ACCEPTED)
             } ?: ResponseEntity(HttpStatus.NOT_FOUND)
 
+    @ResponseBody
+    @Secured("ROLE_POLICE")
+    @GetMapping("/{id}/spam")
+    fun markReportAsSpam(
+            @PathVariable id: Int,
+            @AuthenticationPrincipal @ApiIgnore user: User):
+            ResponseEntity<Report> =
+            reportService.markReportAsSpam(id)?.let {
+                ResponseEntity(it, HttpStatus.ACCEPTED)
+            } ?: ResponseEntity(HttpStatus.NOT_FOUND)
 
     private fun getUserById(id: Int): User =
             userRepository.findUserById(id) ?: throw UserNotFound()

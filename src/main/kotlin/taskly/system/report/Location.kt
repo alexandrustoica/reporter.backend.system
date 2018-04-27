@@ -9,9 +9,9 @@ import kotlin.math.sin
 
 @Embeddable
 data class Location constructor(
-        @Column
+        @Column(name="latitude")
         val latitude: Double = 0.0,
-        @Column
+        @Column(name="longitude")
         val longitude: Double = 0.0) :
         Serializable, Comparable<Location> {
 
