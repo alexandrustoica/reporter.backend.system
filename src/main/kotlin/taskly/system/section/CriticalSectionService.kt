@@ -30,5 +30,4 @@ class CriticalSectionService {
             .findById(id)?.also { criticalSectionRepository.delete(it) }
 
     fun getById(id: Int): CriticalSection? = criticalSectionRepository.findById(id)
-
 }

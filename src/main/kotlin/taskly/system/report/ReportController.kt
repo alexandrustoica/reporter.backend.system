@@ -13,6 +13,7 @@ import taskly.system.section.CriticalSectionSensor
 import taskly.system.user.User
 import taskly.system.user.UserNotFound
 import taskly.system.user.UserRepository
+import taskly.system.user.UserService
 import java.util.*
 import java.util.Calendar.DAY_OF_YEAR
 
@@ -28,39 +29,41 @@ class ReportController {
     private lateinit var criticalSectionSensor: CriticalSectionSensor
 
     @Autowired
-    private lateinit var userRepository: UserRepository
+    private lateinit var userService: UserService
 
-    private companion object {
+    companion object SystemConstants {
         const val radiusOfCriticalSection: Double = 2000.0
         const val sizeOfCriticalSection: Int = 5
     }
 
     @ResponseBody
-    @Secured("ROLE_USER")
     @PostMapping("")
+    @Secured(value = ["ROLE_USER", "ROLE_POLICE"])
     fun insert(@AuthenticationPrincipal @ApiIgnore user: User,
-               @RequestBody report: Report): ResponseEntity<Report?> {
+               @RequestBody report: Report): ResponseEntity<Report> {
         val result = reportService.save(report.copy(user = getUserById(user.id)))
         criticalSectionSensor.criticalSectionFormedAt(report.location,
                 radiusOfCriticalSection,
                 sizeOfCriticalSection)
         return result?.let { ResponseEntity(it, HttpStatus.ACCEPTED) }
-                ?: ResponseEntity(HttpStatus.UNAUTHORIZED)
+                ?: ResponseEntity(HttpStatus.NOT_ACCEPTABLE)
     }
 
     @ResponseBody
-    @Secured("ROLE_USER")
     @PutMapping("")
+    @Secured(value = ["ROLE_USER", "ROLE_POLICE"])
     fun update(@AuthenticationPrincipal @ApiIgnore user: User,
-               @RequestBody report: Report): ResponseEntity<Report?> =
+               @RequestBody report: Report): ResponseEntity<Report> =
             insert(user, report)
 
     @ResponseBody
-    @Secured("ROLE_USER")
     @DeleteMapping("/{id}")
+    @Secured(value = ["ROLE_USER", "ROLE_POLICE"])
     fun delete(@AuthenticationPrincipal @ApiIgnore user: User,
                @PathVariable id: Int): ResponseEntity<Report?> {
-        val report = reportService.delete(id)
+        val reportFromDatabase = reportService.findById(id)
+        val report = if(reportFromDatabase.user == getUserById(user.id))
+            reportService.delete(reportFromDatabase) else null
         report?.let {
             criticalSectionSensor.deleteIfNeedCriticalSectionFrom(it.location,
                     radiusOfCriticalSection, sizeOfCriticalSection)
@@ -70,24 +73,24 @@ class ReportController {
     }
 
     @ResponseBody
-    @Secured("ROLE_USER")
     @GetMapping("/{id}")
+    @Secured(value = ["ROLE_USER", "ROLE_POLICE"])
     fun getReportById(
             @AuthenticationPrincipal @ApiIgnore user: User,
             @PathVariable id: Int): Report =
             reportService.findById(id)
 
     @ResponseBody
-    @Secured("ROLE_USER")
     @GetMapping("/{id}/photos")
+    @Secured(value = ["ROLE_USER", "ROLE_POLICE"])
     fun getPhotosFromReport(
             @AuthenticationPrincipal @ApiIgnore user: User,
             @PathVariable id: Int): List<Photo> =
             reportService.getPhotosFromPhoto(id)
 
     @ResponseBody
-    @Secured("ROLE_USER")
     @GetMapping("")
+    @Secured(value = ["ROLE_USER", "ROLE_POLICE"])
     fun getAllReportsFromCurrentUser(
             @AuthenticationPrincipal @ApiIgnore user: User,
             @RequestParam page: Int,
@@ -95,8 +98,8 @@ class ReportController {
             reportService.findByUser(getUserById(user.id), PageRequest(page, size))
 
     @ResponseBody
-    @Secured("ROLE_USER")
     @GetMapping("/latest")
+    @Secured(value = ["ROLE_USER", "ROLE_POLICE"])
     fun getReportsFromLatestWeekFromCurrentUser(
             @AuthenticationPrincipal @ApiIgnore user: User): List<Report> {
         val dateFrom7DaysAgo = Calendar.getInstance()
@@ -106,8 +109,8 @@ class ReportController {
     }
 
     @ResponseBody
-    @Secured("ROLE_POLICE")
     @GetMapping("/{id}/solved")
+    @Secured(value = ["ROLE_POLICE"])
     fun markReportAsSolved(
             @PathVariable id: Int,
             @AuthenticationPrincipal @ApiIgnore user: User):
@@ -117,8 +120,8 @@ class ReportController {
             } ?: ResponseEntity(HttpStatus.NOT_FOUND)
 
     @ResponseBody
-    @Secured("ROLE_POLICE")
     @GetMapping("/{id}/spam")
+    @Secured(value = ["ROLE_POLICE"])
     fun markReportAsSpam(
             @PathVariable id: Int,
             @AuthenticationPrincipal @ApiIgnore user: User):
@@ -128,5 +131,5 @@ class ReportController {
             } ?: ResponseEntity(HttpStatus.NOT_FOUND)
 
     private fun getUserById(id: Int): User =
-            userRepository.findUserById(id) ?: throw UserNotFound()
+            userService.getById(id) ?: throw UserNotFound()
 }
