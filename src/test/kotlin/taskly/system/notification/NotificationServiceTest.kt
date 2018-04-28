@@ -1,4 +1,4 @@
-package taskly.system.report
+package taskly.system.notification
 
 import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.Matchers.*
@@ -12,16 +12,10 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories
 import org.springframework.test.annotation.DirtiesContext
 import org.springframework.test.context.TestPropertySource
 import org.springframework.test.context.junit.jupiter.SpringExtension
-import taskly.system.notification.Notification
-import taskly.system.notification.NotificationRepository
-import taskly.system.notification.NotificationService
 import taskly.system.user.User
 import taskly.system.user.UserRepository
+import java.util.*
 
-/**
- * @author Alexandru Stoica
- * @version 1.0
- */
 
 @DataJpaTest
 @ExtendWith(SpringExtension::class)
@@ -67,6 +61,49 @@ class NotificationServiceTest {
                 service.save(notification.copy(id = 0)))
         // when:
         val result = service.getAllNotificationsFrom(user)
+        // then:
+        assertThat(result, `is`(equalTo(subject)))
+    }
+
+    @Test
+    fun whenMarkingNotificationAsRead_WithValidNotification_ExpectNotificationMarkedAsRead() {
+        // given:
+        val user = User()
+                .withExpoNotificationToken("token")
+                .let { userRepository.save(it) }
+        val subject = Notification("Title", "message", user)
+                .let { notificationRepository.save(it) }
+        // when:
+        val result = service.markNotificationAsRead(subject.id)?.isRead
+        // then:
+        assertThat(result, `is`(true))
+    }
+
+
+    @Test
+    fun whenMarkingNotificationAsRead_WithInvalidNotification_ExpectNotificationNotMarkedAsRead() {
+        // given:
+        val user = User()
+                .withExpoNotificationToken("token")
+                .let { userRepository.save(it) }
+        val subject = Notification("Title", "message", user)
+        // when:
+        val result = service.markNotificationAsRead(subject.id)?.isRead ?: false
+        // then:
+        assertThat(result, `is`(false))
+    }
+
+    @Test
+    fun whenSavingNotification_WithValidNotification_ExpectNotificationDateCorrect() {
+        // given:
+        val user = User()
+                .withExpoNotificationToken("token")
+                .let { userRepository.save(it) }
+        val subject = Calendar.getInstance()
+        val notification = Notification("Title", "message", user)
+                .let { notificationRepository.save(it) }
+        // when:
+        val result = notification.date
         // then:
         assertThat(result, `is`(equalTo(subject)))
     }

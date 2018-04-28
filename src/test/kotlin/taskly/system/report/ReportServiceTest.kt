@@ -1,5 +1,6 @@
 package taskly.system.report
 
+import jdk.nashorn.internal.objects.NativeArray.forEach
 import org.hamcrest.CoreMatchers.`is`
 import org.hamcrest.CoreMatchers.equalTo
 import org.hamcrest.MatcherAssert.assertThat
@@ -11,7 +12,6 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest
 import org.springframework.context.annotation.ComponentScan
-import org.springframework.context.annotation.EnableAspectJAutoProxy
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories
 import org.springframework.test.annotation.DirtiesContext
@@ -22,11 +22,8 @@ import taskly.system.specification.SectorCriteria
 import taskly.system.user.User
 import taskly.system.user.UserRepository
 import java.io.File
+import java.util.*
 
-/**
- * @author Alexandru Stoica
- * @version 1.0
- */
 
 @DataJpaTest
 @ExtendWith(SpringExtension::class)
@@ -37,7 +34,7 @@ import java.io.File
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 @TestPropertySource(locations = ["classpath:integrationtests.properties"])
-public class ReportServiceTest {
+class ReportServiceTest {
 
     @Autowired
     private lateinit var service: ReportService
@@ -97,7 +94,7 @@ public class ReportServiceTest {
     @Test
     fun whenGettingPhotos_WithValidReport_ExpectValidPhoto() {
         // given:
-        val subject = listOf(Photo(PhotoAsBytes(File("test.png"), "png").value()))
+        val subject = listOf(Photo(PhotoAsBytes(File("invalid_parking.png"), "png").value()))
         val report = Report(photos = subject)
         // when:
         val result = reportRepository.save(report)
@@ -139,6 +136,23 @@ public class ReportServiceTest {
         val reports = service.findByUser(user, PageRequest(0, 10))
         // then:
         assertThat(reports.numberOfElements, `is`(2))
+    }
+
+    @Test
+    fun whenGettingAllReportsFromUserAfterDate_UserExists_ExpectCorrectReports() {
+        // given:
+        val user = userRepository.save(User())
+        val reports = listOf(Report().copy(user = user),
+                Report().copy(user = user, date = Calendar.getInstance()
+                        .apply { roll(Calendar.DAY_OF_MONTH, 1) }),
+                Report().copy(user = user, date = Calendar.getInstance()
+                        .apply { roll(Calendar.DAY_OF_MONTH, -1) }))
+                .map { service.save(it) }
+        // when:
+        val result = service.findByUserAndDateAfter(
+                user, Calendar.getInstance(), PageRequest(0, 10))
+        // then:
+        assertThat(result, `is`(reports.subList(0, 2)))
     }
 
     @Test

@@ -13,17 +13,12 @@ data class Location constructor(
         val latitude: Double = 0.0,
         @Column(name="longitude")
         val longitude: Double = 0.0) :
-        Serializable, Comparable<Location> {
+        Serializable {
 
     constructor() : this(0.0, 0.0)
 
     private fun Double.roundByEightDecimals() =
             DecimalFormat("#.#########").format(this).toDouble()
-
-    override fun compareTo(other: Location): Int =
-            if (latitude == other.latitude && longitude == other.longitude) 0
-            else if (latitude > other.latitude && longitude > other.longitude) 1
-            else -1
 
     private val earthRadius: Double = 6371e3
 

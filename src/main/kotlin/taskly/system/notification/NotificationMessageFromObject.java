@@ -2,6 +2,7 @@ package taskly.system.notification;
 
 import org.jooq.lambda.Unchecked;
 
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 
@@ -16,10 +17,10 @@ public final class NotificationMessageFromObject {
     @Override
     public String toString() {
         String[] fieldNames = object.getClass().getAnnotation(AsNotification.class).of();
-        return Stream.of(fieldNames)
+        return String.join(" ", Stream.of(fieldNames)
                 .map(it -> Unchecked.supplier(() -> object.getClass().getDeclaredField(it)).get())
                 .peek(it -> it.setAccessible(true))
-                .map(it -> (String) Unchecked.supplier(() -> it.get(object)).get())
-                .reduce("", (acc, it) -> it + " " + acc);
+                .map(it -> Unchecked.supplier(() -> it.get(object)).get().toString())
+                .collect(Collectors.toList()));
     }
 }

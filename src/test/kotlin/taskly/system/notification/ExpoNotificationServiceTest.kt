@@ -1,7 +1,8 @@
-package taskly.system.report
+package taskly.system.notification
 
 import org.hamcrest.MatcherAssert.assertThat
-import org.hamcrest.Matchers.*
+import org.hamcrest.Matchers.`is`
+import org.hamcrest.Matchers.equalTo
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
@@ -14,15 +15,8 @@ import org.springframework.test.context.TestPropertySource
 import org.springframework.test.context.junit.jupiter.SpringExtension
 import taskly.system.notification.ExpoNotificationService
 import taskly.system.notification.Notification
-import taskly.system.notification.NotificationRepository
-import taskly.system.notification.NotificationService
 import taskly.system.user.User
-import taskly.system.user.UserRepository
 
-/**
- * @author Alexandru Stoica
- * @version 1.0
- */
 
 @DataJpaTest
 @ExtendWith(SpringExtension::class)

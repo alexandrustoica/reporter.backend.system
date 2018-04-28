@@ -17,6 +17,10 @@ class NotificationService {
     fun save(notification: Notification): Notification =
             notificationRepository.save(notification)
 
+    fun markNotificationAsRead(id: Int): Notification? =
+        notificationRepository.findById(id)?.copy(isRead = true)
+                    ?.let { notificationRepository.save(it) }
+
     fun getAllNotificationsFrom(user: User): List<Notification> =
             notificationRepository.findNotificationsByUser(user)
 

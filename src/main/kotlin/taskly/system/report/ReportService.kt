@@ -50,10 +50,11 @@ class ReportService {
     @SendNotification("Your report {0} was solved by the police!")
     fun markReportAsSolved(id: Int): Report? =
             reportRepository.findReportById(id)?.copy(isSolved = true)
-                    .let { reportRepository.save(it) }
+                    ?.let { reportRepository.save(it) }
 
     @SendNotification("Your report {0} was marked as spam by our system!")
     fun markReportAsSpam(id: Int): Report? =
             reportRepository.findReportById(id)?.copy(isSpam = true)
-                    .let { reportRepository.save(it) }
+                    ?.let { reportRepository.save(it) }
+
 }

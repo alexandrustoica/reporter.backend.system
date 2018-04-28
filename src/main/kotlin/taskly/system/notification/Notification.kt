@@ -12,7 +12,7 @@ import taskly.system.user.User
 @Entity
 @ApiModel
 @Table(name = "Notification")
-data class Notification(
+data class Notification (
 
         @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
         @Column(name = "id_notification")

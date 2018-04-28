@@ -2,7 +2,7 @@ package taskly.system.report
 
 import org.hamcrest.CoreMatchers.`is`
 import org.hamcrest.CoreMatchers.equalTo
-import org.junit.Assert.*
+import org.junit.Assert.assertThat
 import org.junit.jupiter.api.Test
 
 class LocationTest {

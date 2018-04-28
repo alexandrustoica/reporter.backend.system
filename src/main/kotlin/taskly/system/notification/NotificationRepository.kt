@@ -9,4 +9,5 @@ import taskly.system.user.User
 @Repository
 interface NotificationRepository: PagingAndSortingRepository<Notification, Int> {
     fun findNotificationsByUser(user: User): List<Notification>
+    fun findById(id: Int): Notification?
 }

@@ -2,6 +2,7 @@ package taskly.system.section
 
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
+import taskly.system.notification.SendNotification
 import taskly.system.report.Location
 import taskly.system.specification.AllCriticalSectionsInSectorOf
 import taskly.system.specification.SectorCriteria
@@ -21,6 +22,7 @@ class CriticalSectionService {
     fun findAt(location: Location, byDistance: Double): CriticalSection? =
             findAllCriticalSectionsNear(location, byDistance).firstOrNull()
 
+    @SendNotification("Critical section at {0} created from one of your reports!")
     fun save(criticalSection: CriticalSection): CriticalSection =
             criticalSectionRepository.save(criticalSection.copy(id = 0))
 

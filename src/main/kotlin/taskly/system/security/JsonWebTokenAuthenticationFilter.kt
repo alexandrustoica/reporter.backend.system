@@ -14,10 +14,6 @@ import javax.servlet.ServletException
 import javax.servlet.http.HttpServletRequest
 import javax.servlet.http.HttpServletResponse
 
-/**
- * @author Alexandru Stoica
- * @version 1.0
- */
 
 class JsonWebTokenAuthenticationFilter(
         private val manager: AuthenticationManager,

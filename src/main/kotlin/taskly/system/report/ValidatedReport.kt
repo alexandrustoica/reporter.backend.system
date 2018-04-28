@@ -15,20 +15,17 @@ class ValidatedReport(private val report: Report) {
             markAsSpam(report)
 
     private fun markAsSpam(report: Report): Report {
-        val imageAnnotator = ImageAnnotatorClient.create()
-        val img = Image.newBuilder()
-                .setContent(ByteString.copyFrom(report.photos.get(0).bytes))
-                .build()
-        val feat = Feature.newBuilder().setType(Type.LABEL_DETECTION).build()
-        val request = AnnotateImageRequest.newBuilder()
-                .addFeatures(feat)
-                .setImage(img)
-                .build()
-        val responses = imageAnnotator.batchAnnotateImages(listOf(request))
-        print(responses)
-        responses.responsesList.forEach { response ->
-            println(response.labelAnnotationsList.filter { it.description == "yellow" })
+        val system = ImageAnnotatorClient.create()
+        val feature = Feature.newBuilder().setType(Type.LABEL_DETECTION).build()
+        val requests = report.photos
+                .map { Image.newBuilder().setContent(ByteString.copyFrom(it.bytes)).build() }
+                .map { AnnotateImageRequest.newBuilder().addFeatures(feature).setImage(it).build() }
+        val responses = system.batchAnnotateImages(requests)
+        val results = responses.responsesList.flatMap {
+            it.labelAnnotationsList.filter { label ->
+                label.description.contains("parking")
+            }
         }
-        return report.copy(isSpam = true)
+        return report.copy(isSpam = results.isEmpty())
     }
 }

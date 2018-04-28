@@ -1,8 +1,9 @@
-package taskly.system.report
+package taskly.system.user
 
 import org.hamcrest.CoreMatchers.*
 import org.hamcrest.MatcherAssert.assertThat
 import org.junit.jupiter.api.Assertions.assertAll
+import org.junit.jupiter.api.Assertions.assertThrows
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.junit.jupiter.api.function.Executable
@@ -14,9 +15,6 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories
 import org.springframework.test.annotation.DirtiesContext
 import org.springframework.test.context.TestPropertySource
 import org.springframework.test.context.junit.jupiter.SpringExtension
-import taskly.system.user.User
-import taskly.system.user.UserRepository
-import taskly.system.user.UserService
 
 @DataJpaTest
 @ExtendWith(SpringExtension::class)
@@ -27,7 +25,7 @@ import taskly.system.user.UserService
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 @TestPropertySource(locations = ["classpath:integrationtests.properties"])
-public class UserServiceTest {
+class UserServiceTest {
 
     @Autowired
     private lateinit var userRepository: UserRepository
@@ -43,6 +41,33 @@ public class UserServiceTest {
         val result = service.save(subject)
         // then:
         assertThat(result, `is`(equalTo(userRepository.findAll().first())))
+    }
+
+    @Test
+    fun whenLoadingByUsername_WithUsernameValid_ExpectUserLoaded() {
+        // given:
+        val subject = User().let { userRepository.save(it) }
+        // when:
+        val result = service.loadUserByUsername(subject.username)
+        // then:
+        assertThat(result.username, `is`(subject.username))
+    }
+
+    @Test
+    fun whenLoadingByUsername_WithUsernameInvalid_ExpectUserNotLoaded() {
+        // given & when & then:
+        assertThrows(UserNotFound::class.java,
+                { service.loadUserByUsername("anything") })
+    }
+
+    @Test
+    fun whenGettingJsonToken_FromValidUser_ExpectValidJsonToken() {
+        // given:
+        val subject = User().let { userRepository.save(it) }
+        // when:
+        val result = service.getJsonWebToken(subject)
+        // then:
+        assertThat(result, `is`(notNullValue()))
     }
 
     @Test
