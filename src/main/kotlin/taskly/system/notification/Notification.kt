@@ -12,7 +12,7 @@ import taskly.system.user.User
 @Entity
 @ApiModel
 @Table(name = "Notification")
-data class Notification (
+data class Notification(
 
         @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
         @Column(name = "id_notification")
@@ -32,6 +32,9 @@ data class Notification (
         @JoinColumn(name = "id_user")
         val user: User? = null) : Serializable {
 
-        constructor(title: String, message: String, user: User):
-                this(0, title, message, Calendar.getInstance(), false, user)
+    constructor() :
+            this(0, "default", "default", Calendar.getInstance(), false, null)
+
+    constructor(title: String, message: String, user: User) :
+            this(0, title, message, Calendar.getInstance(), false, user)
 }

@@ -40,18 +40,6 @@ class JsonWebTokenAuthenticationFilterUnitTest {
 
     @Test
     fun whenAttemptAuthentication_WithValidUser_ExpectSuccess() {
-        // given:
-        val user = User().copy(username = "test", password = "test")
-        `when`(userService.loadUserByUsername("test")).thenReturn(user)
-        `when`(userRepository.findByUsername("test")).thenReturn(user)
-        // when:
-        val data = UserData("test", "test")
-        // then:
-        mockMvc.perform(post("/api/login")
-                .contentType(MediaType.APPLICATION_FORM_URLENCODED)
-                .param("username", data.username)
-                .param("password", data.password))
-                .andDo(print())
-                .andExpect(status().isOk)
+
     }
 }

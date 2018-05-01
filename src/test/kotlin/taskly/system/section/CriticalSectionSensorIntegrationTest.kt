@@ -24,7 +24,8 @@ import taskly.system.report.ReportRepository
 @ExtendWith(SpringExtension::class)
 @EnableJpaRepositories("taskly.system.section", "taskly.system.report",
         "taskly.system.user", "taskly.system.notification")
-@ComponentScan("taskly.system.section", "taskly.system.report", "taskly.system.notification")
+@ComponentScan("taskly.system.section", "taskly.system.security", "taskly.system.user",
+        "taskly.system.report", "taskly.system.notification")
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 @TestPropertySource(locations = ["classpath:integrationtests.properties"])

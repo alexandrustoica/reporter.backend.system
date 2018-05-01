@@ -2,14 +2,18 @@ package taskly.system.report
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.nhaarman.mockito_kotlin.verify
+import org.apache.coyote.http11.Constants.a
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.mockito.Matchers.anyObject
 import org.mockito.Mockito
 import org.mockito.Mockito.`when`
 import org.mockito.Mockito.times
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest
 import org.springframework.boot.test.mock.mockito.MockBean
+import org.springframework.data.domain.PageImpl
+import org.springframework.data.domain.PageRequest
 import org.springframework.http.MediaType
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.core.context.SecurityContextHolder
@@ -21,6 +25,8 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 import taskly.system.section.CriticalSectionSensor
 import taskly.system.user.User
 import taskly.system.user.UserService
+import java.io.File
+import java.util.*
 
 
 @RunWith(SpringRunner::class)
@@ -166,44 +172,129 @@ class ReportControllerTest {
     }
 
     @Test
-    fun getReportById() {
+    fun whenGettingReportById_WithValidId_ExpectReport() {
         // given:
+        val user = User().also { loginWith(it) }
+        val subject = Report().copy(user = user, id = 1)
         // when:
+        `when`(reportService.getById(subject.id)).thenReturn(subject)
+        `when`(userService.getById(user.id)).thenReturn(user)
         // then:
+        mockMvc.perform(get("/reports/${subject.id}"))
+                .andExpect(status().isAccepted)
+                .andExpect(content().json(mapper.writeValueAsString(subject)))
     }
 
     @Test
-    fun getPhotosFromReport() {
+    fun whenGettingReportById_WithInvalidId_ExpectReportNotFound() {
         // given:
+        val user = User().also { loginWith(it) }
+        val subject = Report().copy(user = user, id = 1)
         // when:
+        `when`(reportService.getById(subject.id)).thenReturn(null)
+        `when`(userService.getById(user.id)).thenReturn(user)
         // then:
+        mockMvc.perform(get("/reports/${subject.id}"))
+                .andExpect(status().isNotFound)
     }
 
     @Test
-    fun getAllReportsFromCurrentUser() {
+    fun whenGettingPhotosFromReport_WithValidPhotos_ExpectPhotos() {
         // given:
+        val photos = listOf(Photo(PhotoAsBytes(File("invalid_parking.png"), "png").value()))
+        val user = User().also { loginWith(it) }
+        val subject = Report().copy(user = user, id = 1, photos = photos)
         // when:
+        `when`(reportService.getPhotosFromPhoto(subject.id)).thenReturn(photos)
+        `when`(userService.getById(user.id)).thenReturn(user)
         // then:
+        mockMvc.perform(get("/reports/${subject.id}/photos"))
+                .andExpect(status().isOk)
+                .andExpect(content().json(mapper.writeValueAsString(photos)))
     }
 
     @Test
-    fun getReportsFromLatestWeekFromCurrentUser() {
+    fun whenGettingAllReportsFromCurrentUser_WithValidCurrentUser_ExpectReports() {
         // given:
+        val user = User().also { loginWith(it) }
+        val subject = listOf(Report().copy(user = user, id = 1),
+                Report().copy(user = user, id = 2),
+                Report().copy(user = user, id = 3))
         // when:
+        val result = PageImpl<Report>(subject)
+        `when`(reportService.findByUser(user, PageRequest(0, 3))).thenReturn(result)
+        `when`(userService.getById(user.id)).thenReturn(user)
         // then:
+        mockMvc.perform(get("/reports/${0}/${3}"))
+                .andExpect(status().isOk)
+                .andExpect(content().json(mapper.writeValueAsString(result)))
     }
 
     @Test
-    fun markReportAsSolved() {
+    fun whenGettingReportsFromLastWeekFromUser_WithValidUser_ExpectReports() {
         // given:
+        val user = User().also { loginWith(it) }
+        val subject = listOf(Report().copy(user = user, id = 1),
+                Report().copy(user = user, id = 2),
+                Report().copy(user = user, id = 3))
         // when:
+        `when`(reportService.findByUserAndDateAfter(any(), any(), any()))
+                .thenReturn(subject)
         // then:
+        mockMvc.perform(get("/reports/latest"))
+                .andExpect(status().isOk)
+                .andExpect(content().json(mapper.writeValueAsString(subject)))
     }
 
     @Test
-    fun markReportAsSpam() {
+    fun whenMarkingReportAsSolved_WithValidReport_ExpectReportMarked() {
         // given:
+        val user = User().also { loginWith(it) }
+        val subject = Report().copy(user = user, id = 1)
+        val result = subject.copy(isSolved = true)
         // when:
+        `when`(reportService.markReportAsSolved(subject.id)).thenReturn(result)
         // then:
+        mockMvc.perform(put("/reports/${subject.id}/solved"))
+                .andExpect(status().isAccepted)
+                .andExpect(content().json(mapper.writeValueAsString(result)))
+    }
+
+    @Test
+    fun whenMarkingReportAsSpam_WithValidReport_ExpectReportMarked() {
+        // given:
+        val user = User().also { loginWith(it) }
+        val subject = Report().copy(user = user, id = 1)
+        val result = subject.copy(isSpam = true)
+        // when:
+        `when`(reportService.markReportAsSpam(subject.id)).thenReturn(result)
+        // then:
+        mockMvc.perform(put("/reports/${subject.id}/spam"))
+                .andExpect(status().isAccepted)
+                .andExpect(content().json(mapper.writeValueAsString(result)))
+    }
+
+    @Test
+    fun whenMarkingReportAsSpam_WithInvalidReport_ExpectNotFound() {
+        // given:
+        val user = User().also { loginWith(it) }
+        val subject = Report().copy(user = user, id = 1)
+        // when:
+        `when`(reportService.markReportAsSpam(subject.id)).thenReturn(null)
+        // then:
+        mockMvc.perform(put("/reports/${subject.id}/spam"))
+                .andExpect(status().isNotFound)
+    }
+
+    @Test
+    fun whenMarkingReportAsSolved_WithInvalidReport_ExpectNotFound() {
+        // given:
+        val user = User().also { loginWith(it) }
+        val subject = Report().copy(user = user, id = 1)
+        // when:
+        `when`(reportService.markReportAsSolved(subject.id)).thenReturn(null)
+        // then:
+        mockMvc.perform(put("/reports/${subject.id}/solved"))
+                .andExpect(status().isNotFound)
     }
 }

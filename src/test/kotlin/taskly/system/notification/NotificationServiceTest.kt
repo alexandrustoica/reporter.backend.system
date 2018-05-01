@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest
 import org.springframework.context.annotation.ComponentScan
+import org.springframework.data.domain.PageRequest
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories
 import org.springframework.test.annotation.DirtiesContext
 import org.springframework.test.context.TestPropertySource
@@ -79,6 +80,26 @@ class NotificationServiceTest {
         assertThat(result, `is`(true))
     }
 
+    @Test
+    fun whenGettingAllNotifications_FromUser_ExpectNotificationsInOrder() {
+        // given:
+        val user = User().let { userRepository.save(it) }
+        val yesterday = Calendar.getInstance()
+                .also { it.roll(Calendar.DAY_OF_MONTH, -1) }
+        val twoDaysAgo = Calendar.getInstance()
+                .also { it.roll(Calendar.DAY_OF_MONTH, -2) }
+        val notifications = listOf(
+                Notification("Title", "message", user).copy(date = yesterday),
+                Notification("Title", "message", user).copy(date = twoDaysAgo),
+                Notification("Title", "message", user))
+                .map { notificationRepository.save(it) }
+        val subject = notifications.sortedByDescending { it.date }
+        // when:
+        val result = service.findLatestNotificationsFor(user, PageRequest(0, 4)).content
+        // then:
+        assertThat(result, `is`(equalTo(subject)))
+    }
+
 
     @Test
     fun whenMarkingNotificationAsRead_WithInvalidNotification_ExpectNotificationNotMarkedAsRead() {
@@ -119,6 +140,4 @@ class NotificationServiceTest {
         assertThat(result.expoNotificationToken, both(`is`(equalTo(subject)))
                 .and(`is`(equalTo(userRepository.findUserById(user.id)?.expoNotificationToken))))
     }
-
-
 }

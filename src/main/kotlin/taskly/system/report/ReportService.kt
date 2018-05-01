@@ -32,6 +32,9 @@ class ReportService {
     fun findById(id: Int): Report =
             reportRepository.findReportById(id) ?: throw ReportNotFound()
 
+    fun getById(id: Int): Report? =
+            reportRepository.findReportById(id)
+
     fun findByUser(user: User, page: Pageable): Page<Report> =
             reportRepository.findReportsByUserOrderByDateDesc(user, page)
 

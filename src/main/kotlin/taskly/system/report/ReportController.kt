@@ -1,5 +1,6 @@
 package taskly.system.report
 
+import org.omg.CosNaming.NamingContextPackage.NotFound
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageRequest
@@ -16,6 +17,7 @@ import taskly.system.user.UserRepository
 import taskly.system.user.UserService
 import java.util.*
 import java.util.Calendar.DAY_OF_YEAR
+import javax.xml.ws.Response
 
 
 @RestController
@@ -62,7 +64,7 @@ class ReportController {
     fun delete(@AuthenticationPrincipal @ApiIgnore user: User,
                @PathVariable id: Int): ResponseEntity<Report?> {
         val reportFromDatabase = reportService.findById(id)
-        val report = if(reportFromDatabase.user == getUserById(user.id))
+        val report = if (reportFromDatabase.user == getUserById(user.id))
             reportService.delete(reportFromDatabase) else null
         report?.let {
             criticalSectionSensor.deleteIfNeedCriticalSectionFrom(it.location,
@@ -77,8 +79,10 @@ class ReportController {
     @Secured(value = ["ROLE_USER", "ROLE_POLICE"])
     fun getReportById(
             @AuthenticationPrincipal @ApiIgnore user: User,
-            @PathVariable id: Int): Report =
-            reportService.findById(id)
+            @PathVariable id: Int): ResponseEntity<Report> =
+            reportService.getById(id)
+                    ?.let{ ResponseEntity(it, HttpStatus.ACCEPTED) }
+                    ?: ResponseEntity(HttpStatus.NOT_FOUND)
 
     @ResponseBody
     @GetMapping("/{id}/photos")
@@ -89,12 +93,12 @@ class ReportController {
             reportService.getPhotosFromPhoto(id)
 
     @ResponseBody
-    @GetMapping("")
+    @GetMapping("/{page}/{size}")
     @Secured(value = ["ROLE_USER", "ROLE_POLICE"])
     fun getAllReportsFromCurrentUser(
             @AuthenticationPrincipal @ApiIgnore user: User,
-            @RequestParam page: Int,
-            @RequestParam size: Int): Page<Report> =
+            @PathVariable page: Int,
+            @PathVariable size: Int): Page<Report> =
             reportService.findByUser(getUserById(user.id), PageRequest(page, size))
 
     @ResponseBody
@@ -109,7 +113,7 @@ class ReportController {
     }
 
     @ResponseBody
-    @GetMapping("/{id}/solved")
+    @PutMapping("/{id}/solved")
     @Secured(value = ["ROLE_POLICE"])
     fun markReportAsSolved(
             @PathVariable id: Int,
@@ -120,7 +124,7 @@ class ReportController {
             } ?: ResponseEntity(HttpStatus.NOT_FOUND)
 
     @ResponseBody
-    @GetMapping("/{id}/spam")
+    @PutMapping("/{id}/spam")
     @Secured(value = ["ROLE_POLICE"])
     fun markReportAsSpam(
             @PathVariable id: Int,

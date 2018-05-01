@@ -30,7 +30,8 @@ import taskly.system.user.User
 @DataJpaTest
 @EnableAspectJAutoProxy
 @ExtendWith(SpringExtension::class)
-@ComponentScan("taskly.system.section", "taskly.system.report", "taskly.system.notification")
+@ComponentScan("taskly.system.section", "taskly.system.security", "taskly.system.user",
+        "taskly.system.report", "taskly.system.notification")
 @EnableJpaRepositories("taskly.system.section", "taskly.system.notification",
         "taskly.system.report", "taskly.system.user", "taskly.system.section")
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
