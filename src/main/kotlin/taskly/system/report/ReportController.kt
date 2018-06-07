@@ -10,6 +10,8 @@ import org.springframework.security.access.annotation.Secured
 import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.web.bind.annotation.*
 import springfox.documentation.annotations.ApiIgnore
+import taskly.system.section.Area
+import taskly.system.section.CriticalSection
 import taskly.system.section.CriticalSectionSensor
 import taskly.system.user.User
 import taskly.system.user.UserNotFound
@@ -111,6 +113,12 @@ class ReportController {
         return reportService.findByUserAndDateAfter(user,
                 dateFrom7DaysAgo, PageRequest(0, 1000))
     }
+
+    @ResponseBody
+    @PutMapping("/near")
+    @Secured(value = ["ROLE_USER", "ROLE_POLICE"])
+    fun getAllReportsNear(@RequestBody area: Area): List<Report> =
+            reportService.findAllReportsNear(area.origin, area.radius)
 
     @ResponseBody
     @PutMapping("/{id}/solved")

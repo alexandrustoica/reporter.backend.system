@@ -31,22 +31,27 @@ class ValidatedReportIntegrationTest {
     @Test
     fun whenCheckingReport_WithInvalidParkingImage_ExpectReportMarkedAsSpam() {
         // given:
-        val photos = listOf(Photo(PhotoAsBytes(File("invalid_parking.png"), "png").value()))
-        val subject = Report(photos = photos)
+        val folder = File("images/invalid")
+        val photos = folder.listFiles().filter { it.extension == "png" }
+                .map { Photo(PhotoAsBytes(it, "png").value()) }
+        val subjects = photos.map { Report(photos = listOf(it)) }
         // when:
-        val result = ValidatedReport(subject).value().isSpam
+        val results = subjects.map { ValidatedReport(it).value().isSpam }
         // then:
-        assertThat(result, `is`(true))
+        results.forEach { assertThat(it , `is`(true)) }
     }
 
     @Test
-    fun whenCheckingReport_WithValidParkingImage_ExpectReportMarkedAsSpam() {
+    fun whenCheckingReport_WithValidParkingImage_ExpectReportNotMarkedAsSpam() {
         // given:
-        val photos = listOf(Photo(PhotoAsBytes(File("valid_parking.png"), "png").value()))
-        val subject = Report(photos = photos)
+        val folder = File("images/valid")
+        val photos = folder.listFiles().filter { it.extension == "png" }
+                .map { Photo(PhotoAsBytes(it, "png").value()) }
+        val subjects = photos.map { Report(photos = listOf(it)) }
         // when:
-        val result = ValidatedReport(subject).value().isSpam
+        val results = subjects.map { ValidatedReport(it).value().isSpam }
+        results.forEach { println(it) }
         // then:
-        assertThat(result, `is`(false))
+        results.forEach { assertThat(it , `is`(false)) }
     }
 }

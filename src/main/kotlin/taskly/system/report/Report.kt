@@ -53,7 +53,9 @@ data class Report @PersistenceConstructor constructor(
         val section: CriticalSection? = null,
 
         val isSpam: Boolean = false,
-        val isSolved: Boolean = false) : Serializable {
+        val isSolved: Boolean = false,
+        val type: ReportType = ReportType.PARKING) : Serializable {
 
     constructor(location: Location) : this(0, "default", "default", location)
+    override fun toString(): String = this.title
 }

@@ -52,6 +52,7 @@ class SecurityConfiguration : WebSecurityConfigurerAdapter() {
                 .antMatchers("/login/*").permitAll()
                 .antMatchers("/users/register").permitAll()
                 .antMatchers("/users/police").permitAll()
+                .antMatchers("/ws_reports").permitAll()
                 .anyRequest().authenticated().and()
                 .addFilter(JsonWebTokenAuthorizationFilter(authenticationManager(), constants, userRepository))
                 .addFilter(JsonWebTokenAuthenticationFilter(authenticationManager(), constants, userService))

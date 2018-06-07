@@ -12,7 +12,7 @@ class CriticalSectionController {
     private lateinit var criticalSectionService: CriticalSectionService
 
     @ResponseBody
-    @PostMapping("/")
+    @PostMapping("")
     @Secured(value = ["ROLE_USER", "ROLE_POLICE"])
     fun getAllNear(@RequestBody area: Area): List<CriticalSection> =
             criticalSectionService.findAllCriticalSectionsNear(area.origin, area.radius)
