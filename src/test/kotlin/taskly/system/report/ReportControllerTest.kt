@@ -201,7 +201,7 @@ class ReportControllerTest {
     @Test
     fun whenGettingPhotosFromReport_WithValidPhotos_ExpectPhotos() {
         // given:
-        val photos = listOf(Photo(PhotoAsBytes(File("invalid_parking.png"), "png").value()))
+        val photos = listOf(Photo(PhotoAsBytes(File("images/invalid/example_2.png"), "png").value()))
         val user = User().also { loginWith(it) }
         val subject = Report().copy(user = user, id = 1, photos = photos)
         // when:

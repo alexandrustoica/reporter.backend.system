@@ -1,6 +1,6 @@
 package taskly.system.report
 
-import org.omg.CosNaming.NamingContextPackage.NotFound
+import org.aspectj.weaver.tools.cache.SimpleCacheFactory.path
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageRequest
@@ -11,15 +11,19 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.web.bind.annotation.*
 import springfox.documentation.annotations.ApiIgnore
 import taskly.system.section.Area
-import taskly.system.section.CriticalSection
 import taskly.system.section.CriticalSectionSensor
 import taskly.system.user.User
 import taskly.system.user.UserNotFound
-import taskly.system.user.UserRepository
 import taskly.system.user.UserService
 import java.util.*
 import java.util.Calendar.DAY_OF_YEAR
 import javax.xml.ws.Response
+import sun.security.krb5.Confounder.bytes
+import java.io.ByteArrayInputStream
+import javax.imageio.ImageIO
+import java.awt.image.BufferedImage
+import java.io.BufferedOutputStream
+import java.io.FileOutputStream
 
 
 @RestController
@@ -36,7 +40,7 @@ class ReportController {
     private lateinit var userService: UserService
 
     companion object SystemConstants {
-        const val radiusOfCriticalSection: Double = 2000.0
+        const val radiusOfCriticalSection: Double = 500.0
         const val sizeOfCriticalSection: Int = 5
     }
 
@@ -46,9 +50,10 @@ class ReportController {
     fun insert(@AuthenticationPrincipal @ApiIgnore user: User,
                @RequestBody report: Report): ResponseEntity<Report> {
         val result = reportService.save(report.copy(user = getUserById(user.id)))
-        criticalSectionSensor.criticalSectionFormedAt(report.location,
-                radiusOfCriticalSection,
-                sizeOfCriticalSection)
+        result?.isSpam?.not()?.let {
+            criticalSectionSensor.criticalSectionFormedAt(report.location,
+                    radiusOfCriticalSection, sizeOfCriticalSection)
+        }
         return result?.let { ResponseEntity(it, HttpStatus.ACCEPTED) }
                 ?: ResponseEntity(HttpStatus.NOT_ACCEPTABLE)
     }
@@ -83,7 +88,7 @@ class ReportController {
             @AuthenticationPrincipal @ApiIgnore user: User,
             @PathVariable id: Int): ResponseEntity<Report> =
             reportService.getById(id)
-                    ?.let{ ResponseEntity(it, HttpStatus.ACCEPTED) }
+                    ?.let { ResponseEntity(it, HttpStatus.ACCEPTED) }
                     ?: ResponseEntity(HttpStatus.NOT_FOUND)
 
     @ResponseBody
@@ -115,6 +120,14 @@ class ReportController {
     }
 
     @ResponseBody
+    @GetMapping("/{id}/owner")
+    @Secured(value = ["ROLE_USER", "ROLE_POLICE"])
+    fun getReportWithOwner(@PathVariable id: Int): ResponseEntity<ReportWithOwner> =
+            reportService.findById(id)
+                    .let { ReportWithOwner(it, it.user?.username ?: "none") }
+                    .let { ResponseEntity(it, HttpStatus.ACCEPTED) }
+
+    @ResponseBody
     @PutMapping("/near")
     @Secured(value = ["ROLE_USER", "ROLE_POLICE"])
     fun getAllReportsNear(@RequestBody area: Area): List<Report> =
@@ -126,10 +139,16 @@ class ReportController {
     fun markReportAsSolved(
             @PathVariable id: Int,
             @AuthenticationPrincipal @ApiIgnore user: User):
-            ResponseEntity<Report> =
-            reportService.markReportAsSolved(id)?.let {
-                ResponseEntity(it, HttpStatus.ACCEPTED)
-            } ?: ResponseEntity(HttpStatus.NOT_FOUND)
+            ResponseEntity<Report> {
+        val report = reportService.markReportAsSolved(id)
+        report?.let {
+            criticalSectionSensor.deleteIfNeedCriticalSectionFrom(it.location,
+                    radiusOfCriticalSection, sizeOfCriticalSection)
+        }
+        return report?.let {
+            ResponseEntity(it, HttpStatus.ACCEPTED)
+        } ?: ResponseEntity(HttpStatus.NOT_FOUND)
+    }
 
     @ResponseBody
     @PutMapping("/{id}/spam")
@@ -137,10 +156,16 @@ class ReportController {
     fun markReportAsSpam(
             @PathVariable id: Int,
             @AuthenticationPrincipal @ApiIgnore user: User):
-            ResponseEntity<Report> =
-            reportService.markReportAsSpam(id)?.let {
-                ResponseEntity(it, HttpStatus.ACCEPTED)
-            } ?: ResponseEntity(HttpStatus.NOT_FOUND)
+            ResponseEntity<Report> {
+        val report = reportService.markReportAsSpam(id)
+        report?.let {
+            criticalSectionSensor.deleteIfNeedCriticalSectionFrom(it.location,
+                    radiusOfCriticalSection, sizeOfCriticalSection)
+        }
+        return report?.let {
+            ResponseEntity(it, HttpStatus.ACCEPTED)
+        } ?: ResponseEntity(HttpStatus.NOT_FOUND)
+    }
 
     private fun getUserById(id: Int): User =
             userService.getById(id) ?: throw UserNotFound()

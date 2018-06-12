@@ -4,6 +4,8 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageRequest
 import org.springframework.stereotype.Service
+import taskly.system.event.BroadcastEvent
+import taskly.system.event.EventType
 import taskly.system.user.User
 import taskly.system.user.UserRepository
 
@@ -16,9 +18,11 @@ class NotificationService {
     @Autowired
     private lateinit var userRepository: UserRepository
 
+    @BroadcastEvent(type = EventType.NOTIFICATION_CREATED)
     fun save(notification: Notification): Notification =
             notificationRepository.save(notification)
 
+    @BroadcastEvent(type = EventType.NOTIFICATION_MARKED_AS_READ)
     fun markNotificationAsRead(id: Int): Notification? =
         notificationRepository.findById(id)?.copy(isRead = true)
                     ?.let { notificationRepository.save(it) }

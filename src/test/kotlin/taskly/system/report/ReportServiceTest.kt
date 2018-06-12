@@ -1,10 +1,10 @@
 package taskly.system.report
 
-import jdk.nashorn.internal.objects.NativeArray.forEach
 import org.hamcrest.CoreMatchers.`is`
 import org.hamcrest.CoreMatchers.equalTo
 import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.collection.IsIterableContainingInAnyOrder
+import org.hamcrest.collection.IsIterableContainingInAnyOrder.containsInAnyOrder
 import org.junit.jupiter.api.Assertions.assertThrows
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -94,7 +94,7 @@ class ReportServiceTest {
     @Test
     fun whenGettingPhotos_WithValidReport_ExpectValidPhoto() {
         // given:
-        val subject = listOf(Photo(PhotoAsBytes(File("invalid_parking.png"), "png").value()))
+        val subject = listOf(Photo(PhotoAsBytes(File("images/invalid/example_2.png"), "png").value()))
         val report = Report(photos = subject)
         // when:
         val result = reportRepository.save(report)
@@ -180,7 +180,7 @@ class ReportServiceTest {
                 .map { reportRepository.save(it) }
         val subject = reports.subList(0, 2)
         // when:
-        val result = service.findAllReportsNear(Location(0.0, 0.0), byDistance = 3000.0)
+        val result = service.findAllReportsNear(Location(0.0, 0.0), byDistance = 3000.0).sortedBy { it.id }
         // then:
         assertThat(result, `is`(equalTo(subject)))
     }

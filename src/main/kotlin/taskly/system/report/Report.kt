@@ -26,9 +26,10 @@ data class Report @PersistenceConstructor constructor(
         val location: Location = Location(),
 
         @Lob
-        @JsonIgnore
         @Column(length = 100000)
-        @ElementCollection(targetClass = Photo::class)
+        @ElementCollection(
+                targetClass = Photo::class,
+                fetch = FetchType.EAGER)
         val photos: List<Photo> = listOf(),
 
         @ApiModelProperty(hidden = true)

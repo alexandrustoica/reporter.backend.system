@@ -22,6 +22,9 @@ data class Location constructor(
 
     private val earthRadius: Double = 6371e3
 
+    override fun toString(): String =
+            "${Math.round(latitude)}N, ${Math.round(longitude)}E"
+
     fun distanceFrom(location: Location): Double {
         val alpha = Math.pow(sin(Math.toRadians(latitude - location.latitude) / 2), 2.0) +
                 Math.cos(Math.toRadians(latitude)) *

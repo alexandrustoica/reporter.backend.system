@@ -110,15 +110,6 @@ class NotificationAspectUnitTest {
     }
 
     @Test
-    fun whenReportIsMarkedAsSpam_ByTheImageVisionAPI_ExpectNotificationSendToUser() {
-        // given:
-        TODO("Test Not Implemented")
-        // when:
-        // then:
-    }
-
-
-    @Test
     fun whenDetectingCriticalSection_ExpectNotificationSendToUser() {
         // given:
         User().copy(expoNotificationToken = "ExponentPushToken[hp-mLhDdLUJi_1ztLaWkhH]")

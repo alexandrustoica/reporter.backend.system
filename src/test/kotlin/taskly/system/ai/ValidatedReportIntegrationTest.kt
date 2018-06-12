@@ -11,10 +11,7 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories
 import org.springframework.test.annotation.DirtiesContext
 import org.springframework.test.context.TestPropertySource
 import org.springframework.test.context.junit.jupiter.SpringExtension
-import taskly.system.report.Photo
-import taskly.system.report.PhotoAsBytes
-import taskly.system.report.Report
-import taskly.system.report.ValidatedReport
+import taskly.system.report.*
 import java.io.File
 
 @DataJpaTest
@@ -29,29 +26,57 @@ import java.io.File
 class ValidatedReportIntegrationTest {
 
     @Test
-    fun whenCheckingReport_WithInvalidParkingImage_ExpectReportMarkedAsSpam() {
+    fun whenCheckingReport_WithInvalidParkingImage_ExpectReportNotMarkedAsSpam() {
         // given:
         val folder = File("images/invalid")
         val photos = folder.listFiles().filter { it.extension == "png" }
                 .map { Photo(PhotoAsBytes(it, "png").value()) }
-        val subjects = photos.map { Report(photos = listOf(it)) }
+        val subjects = photos.map { Report(photos = listOf(it), type = ReportType.PARKING) }
         // when:
         val results = subjects.map { ValidatedReport(it).value().isSpam }
         // then:
-        results.forEach { assertThat(it , `is`(true)) }
+        results.forEach { assertThat(it, `is`(false)) }
     }
 
     @Test
-    fun whenCheckingReport_WithValidParkingImage_ExpectReportNotMarkedAsSpam() {
+    fun whenCheckingReport_WithValidParkingImage_ExpectReportMarkedAsSpam() {
         // given:
         val folder = File("images/valid")
         val photos = folder.listFiles().filter { it.extension == "png" }
                 .map { Photo(PhotoAsBytes(it, "png").value()) }
-        val subjects = photos.map { Report(photos = listOf(it)) }
+        val subjects = photos.map { Report(photos = listOf(it), type = ReportType.PARKING) }
         // when:
         val results = subjects.map { ValidatedReport(it).value().isSpam }
         results.forEach { println(it) }
         // then:
-        results.forEach { assertThat(it , `is`(false)) }
+        results.forEach { assertThat(it, `is`(true)) }
+    }
+
+
+    @Test
+    fun whenCheckingReport_WithTrashInImage_ExpectReportNotMarkedAsSpam() {
+        // given:
+        val folder = File("images/dump")
+        val photos = folder.listFiles().filter { it.extension == "jpg" }
+                .map { Photo(PhotoAsBytes(it, "jpg").value()) }
+        val subjects = photos.map { Report(photos = listOf(it), type = ReportType.DUMP) }
+        // when:
+        val results = subjects.map { ValidatedReport(it).value().isSpam }
+        // then:
+        results.forEach { assertThat(it, `is`(false)) }
+    }
+
+    @Test
+    fun whenCheckingReport_WithGraffitiInImage_ExpectReportNonMarkedAsSpam() {
+        // given:
+        val folder = File("images/graffiti")
+        val photos = folder.listFiles().filter { it.extension == "jpg" }
+                .map { Photo(PhotoAsBytes(it, "jpg").value()) }
+        val subjects = photos.map { Report(photos = listOf(it), type = ReportType.GRAFFITI) }
+        // when:
+        val results = subjects.map { ValidatedReport(it).value().isSpam }
+        // then:
+        results.forEach { assertThat(it, `is`(false)) }
+
     }
 }

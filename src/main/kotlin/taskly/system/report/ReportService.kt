@@ -21,7 +21,7 @@ class ReportService {
 
     @BroadcastEvent(type = EventType.REPORT_CREATED)
     fun save(report: Report): Report? =
-            reportRepository.save(report)
+            reportRepository.save(ValidatedReport(report).value())
 
     @BroadcastEvent(type = EventType.REPORT_DELETED)
     fun delete(report: Report): Report? =
@@ -49,6 +49,8 @@ class ReportService {
             reportRepository.findAll(AllReportsInSectorOf(
                     SectorCriteria(origin, radiusOfSector = byDistance)))
                     .filter { it.location.distanceFrom(origin) <= byDistance }
+                    .filter { !it.isSolved && !it.isSpam }
+                    .sortedBy { it.date }.reversed()
 
     fun findByUserAndDateAfter(
             user: User, date: Calendar, page: Pageable): List<Report> =

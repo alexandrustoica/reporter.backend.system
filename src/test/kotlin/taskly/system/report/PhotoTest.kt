@@ -10,8 +10,8 @@ class PhotoTest {
     @Test
     fun whenCheckingIfTwoPhotos_AreEqual_ExpectTrue() {
         // given:
-        val left = Photo(PhotoAsBytes(File("invalid_parking.png"), "png").value())
-        val right = Photo(PhotoAsBytes(File("invalid_parking.png"), "png").value())
+        val left = Photo(PhotoAsBytes(File("images/invalid/example_2.png"), "png").value())
+        val right = Photo(PhotoAsBytes(File("images/invalid/example_2.png"), "png").value())
         // when:
         val result = left == right
         // then:
@@ -21,8 +21,8 @@ class PhotoTest {
     @Test
     fun whenCheckingIfTwoPhotos_AreNotEqual_ExpectFalse() {
         // given:
-        val left = Photo(PhotoAsBytes(File("invalid_parking.png"), "png").value())
-        val right = Photo(PhotoAsBytes(File("valid_parking.png"), "png").value())
+        val left = Photo(PhotoAsBytes(File("images/invalid/example_2.png"), "png").value())
+        val right = Photo(PhotoAsBytes(File("images/invalid/example_3.png"), "png").value())
         // when:
         val result = left == right
         // then:
@@ -32,8 +32,8 @@ class PhotoTest {
     @Test
     fun whenCheckingIfTwoPhotos_HaveSameHashCode_ExpectTrue() {
         // given:
-        val left = Photo(PhotoAsBytes(File("invalid_parking.png"), "png").value())
-        val right = Photo(PhotoAsBytes(File("invalid_parking.png"), "png").value())
+        val left = Photo(PhotoAsBytes(File("images/invalid/example_2.png"), "png").value())
+        val right = Photo(PhotoAsBytes(File("images/invalid/example_2.png"), "png").value())
         // when:
         val result = left.hashCode() == right.hashCode()
         // then:
