@@ -3,30 +3,25 @@ package taskly.system.report
 import com.google.cloud.vision.v1.*
 import com.google.cloud.vision.v1.Feature.Type
 import com.google.protobuf.ByteString
+import org.springframework.stereotype.Component
 
+@Component
+class ValidatedReport {
 
-class ValidatedReport(private val report: Report) {
-
-    fun value(): Report =
-            markAsSpam(report)
-
-
-    private fun markAsSpam(report: Report): Report {
+    fun filter(report: Report): Report {
         val system = ImageAnnotatorClient.create()
         val feature = Feature.newBuilder().setType(Type.LABEL_DETECTION).setMaxResults(30).build()
         val requests = report.photos
                 .map { Image.newBuilder().setContent(ByteString.copyFrom(it.bytes)).build() }
                 .map { AnnotateImageRequest.newBuilder().addFeatures(feature).setImage(it).build() }
         val responses = system.batchAnnotateImages(requests)
-        val result = responses.responsesList
-                .map {
-                    when {
-                        report.type === ReportType.PARKING -> isIllegalParking(it.labelAnnotationsList)
-                        report.type == ReportType.DUMP -> isIllegalDump(it.labelAnnotationsList)
-                        else -> isIllegalGraffiti(it.labelAnnotationsList)
-                    }
-                }
-                .fold(false) { acc, item -> acc || item }
+        val result = responses.responsesList.map {
+            when {
+                report.type === ReportType.PARKING -> isIllegalParking(it.labelAnnotationsList)
+                report.type == ReportType.DUMP -> isIllegalDump(it.labelAnnotationsList)
+                else -> isIllegalGraffiti(it.labelAnnotationsList)
+            }
+        }.fold(false) { acc, item -> acc || item }
         return report.copy(isSpam = !result || report.photos.isEmpty())
     }
 

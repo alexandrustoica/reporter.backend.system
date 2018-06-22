@@ -22,7 +22,7 @@ class PhotoTest {
     fun whenCheckingIfTwoPhotos_AreNotEqual_ExpectFalse() {
         // given:
         val left = Photo(PhotoAsBytes(File("images/invalid/example_2.png"), "png").value())
-        val right = Photo(PhotoAsBytes(File("images/invalid/example_3.png"), "png").value())
+        val right = Photo(PhotoAsBytes(File("images/invalid/example_4.png"), "png").value())
         // when:
         val result = left == right
         // then:

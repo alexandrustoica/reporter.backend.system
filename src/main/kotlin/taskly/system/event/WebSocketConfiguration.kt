@@ -21,7 +21,7 @@ class WebSocketHandler : TextWebSocketHandler() {
     private lateinit var mapper: ObjectMapper
 
     fun send(event: BroadcastedEvent<Any>) {
-        println(TextMessage(mapper.writeValueAsString(event)))
+        println("Sending message: $event")
         sessions.filter {it.isOpen} .forEach {it.sendMessage(TextMessage(mapper.writeValueAsString(event)))}
     }
 
@@ -30,7 +30,6 @@ class WebSocketHandler : TextWebSocketHandler() {
     }
 
     override fun handleTextMessage(session: WebSocketSession, message: TextMessage) {
-        println(message)
         super.handleTextMessage(session, message)
         sessions.filter { it.isOpen }.forEach { it.sendMessage(message) }
     }

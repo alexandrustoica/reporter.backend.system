@@ -1,6 +1,5 @@
 package taskly.system.report
 
-import org.aspectj.weaver.tools.cache.SimpleCacheFactory.path
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageRequest
@@ -17,13 +16,6 @@ import taskly.system.user.UserNotFound
 import taskly.system.user.UserService
 import java.util.*
 import java.util.Calendar.DAY_OF_YEAR
-import javax.xml.ws.Response
-import sun.security.krb5.Confounder.bytes
-import java.io.ByteArrayInputStream
-import javax.imageio.ImageIO
-import java.awt.image.BufferedImage
-import java.io.BufferedOutputStream
-import java.io.FileOutputStream
 
 
 @RestController
@@ -107,6 +99,16 @@ class ReportController {
             @PathVariable page: Int,
             @PathVariable size: Int): Page<Report> =
             reportService.findByUser(getUserById(user.id), PageRequest(page, size))
+
+    @ResponseBody
+    @GetMapping("/search/{term}/{page}/{size}")
+    @Secured(value = ["ROLE_USER", "ROLE_POLICE"])
+    fun searchAllReportsFromCurrentUser(
+            @AuthenticationPrincipal @ApiIgnore user: User,
+            @PathVariable term: String,
+            @PathVariable page: Int,
+            @PathVariable size: Int): Page<Report> =
+            reportService.searchUserReportsWith(term, user, PageRequest(page, size))
 
     @ResponseBody
     @GetMapping("/latest")

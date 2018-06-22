@@ -37,7 +37,8 @@ public class NotificationAspect {
         String finalMessage = MessageFormat.format(messageTemplate, result);
         Notification notification = new Notification("Notification", finalMessage, user);
         notificationService.save(notification);
-        return expoNotificationService.send(notification);
+        return !user.getExpoNotificationToken().equals("") ?
+                expoNotificationService.send(notification) : null;
     }
 
 }

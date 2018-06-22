@@ -33,7 +33,7 @@ class ValidatedReportIntegrationTest {
                 .map { Photo(PhotoAsBytes(it, "png").value()) }
         val subjects = photos.map { Report(photos = listOf(it), type = ReportType.PARKING) }
         // when:
-        val results = subjects.map { ValidatedReport(it).value().isSpam }
+        val results = subjects.map { ValidatedReport().filter(it).isSpam }
         // then:
         results.forEach { assertThat(it, `is`(false)) }
     }
@@ -46,7 +46,7 @@ class ValidatedReportIntegrationTest {
                 .map { Photo(PhotoAsBytes(it, "png").value()) }
         val subjects = photos.map { Report(photos = listOf(it), type = ReportType.PARKING) }
         // when:
-        val results = subjects.map { ValidatedReport(it).value().isSpam }
+        val results = subjects.map { ValidatedReport().filter(it).isSpam }
         results.forEach { println(it) }
         // then:
         results.forEach { assertThat(it, `is`(true)) }
@@ -61,7 +61,7 @@ class ValidatedReportIntegrationTest {
                 .map { Photo(PhotoAsBytes(it, "jpg").value()) }
         val subjects = photos.map { Report(photos = listOf(it), type = ReportType.DUMP) }
         // when:
-        val results = subjects.map { ValidatedReport(it).value().isSpam }
+        val results = subjects.map { ValidatedReport().filter(it).isSpam }
         // then:
         results.forEach { assertThat(it, `is`(false)) }
     }
@@ -74,7 +74,7 @@ class ValidatedReportIntegrationTest {
                 .map { Photo(PhotoAsBytes(it, "jpg").value()) }
         val subjects = photos.map { Report(photos = listOf(it), type = ReportType.GRAFFITI) }
         // when:
-        val results = subjects.map { ValidatedReport(it).value().isSpam }
+        val results = subjects.map { ValidatedReport().filter(it).isSpam }
         // then:
         results.forEach { assertThat(it, `is`(false)) }
 
