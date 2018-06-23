@@ -22,7 +22,11 @@ class WebSocketHandler : TextWebSocketHandler() {
 
     fun send(event: BroadcastedEvent<Any>) {
         println("Sending message: $event")
-        sessions.filter {it.isOpen} .forEach {it.sendMessage(TextMessage(mapper.writeValueAsString(event)))}
+        sessions.filter { it.isOpen }.forEach {
+            synchronized(it) {
+                it.sendMessage(TextMessage(mapper.writeValueAsString(event)))
+            }
+        }
     }
 
     override fun afterConnectionClosed(session: WebSocketSession, status: CloseStatus) {
